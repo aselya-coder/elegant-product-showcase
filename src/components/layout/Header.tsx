@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";
+import CitySelector from "./CitySelector";
 
 const navigation = [
   { name: "Beranda", href: "/" },
@@ -23,8 +24,18 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
+      {/* Top bar with city selector */}
+      <div className="bg-secondary/50 border-b border-border">
+        <div className="container-custom py-2 flex items-center justify-between">
+          <CitySelector />
+          <span className="text-xs text-muted-foreground hidden sm:block">
+            Pengiriman tersedia di kota terpilih
+          </span>
+        </div>
+      </div>
+      
       <nav className="container-custom">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <span className="font-heading text-2xl md:text-3xl font-semibold text-foreground">
