@@ -4,35 +4,31 @@ import { getWhatsAppUrl } from "@/config/whatsapp";
 const WhatsAppFloat = () => {
   return (
     <a
-      href={getWhatsAppUrl()}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label="Chat via WhatsApp"
       className="
-        fixed bottom-6 right-6 z-50
-        flex items-center gap-3
+        fixed bottom-10 right-4 z-50
+        flex items-center gap-2
         bg-green-500 hover:bg-green-600
-        text-white font-semibold
-        px-5 py-3
+        text-white text-xs font-semibold
+        px-3 py-1.5
         rounded-full
-        shadow-lg
+        shadow-md
         transition-all duration-300
-        hover:scale-105
       "
     >
+
       {/* Text */}
       <span className="whitespace-nowrap">
         Kami Hadir 24 Jam
       </span>
 
-      {/* WhatsApp Icon ASLI */}
+      {/* WhatsApp Icon */}
       <span className="
         flex items-center justify-center
-        w-10 h-10
+        w-8 h-8
         bg-white text-green-500
         rounded-full
       ">
-        <FaWhatsapp size={24} />
+        <FaWhatsapp size={18} />
       </span>
     </a>
   );

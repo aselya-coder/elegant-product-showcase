@@ -30,7 +30,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
           />
         </div>
         {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
+        <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
           {product.bestSeller && (
             <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
               Best Seller
@@ -39,6 +39,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
           {product.originalPrice && (
             <span className="bg-rose text-white text-xs font-medium px-3 py-1 rounded-full">
               Sale
+            </span>
+          )}
+          {product.exclusive && (
+            <span className="bg-black text-white text-xs font-medium px-3 py-1 rounded-full">
+              Exclusive
             </span>
           )}
         </div>

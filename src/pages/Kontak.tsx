@@ -7,13 +7,13 @@ const contactInfo = [
   {
     icon: MapPin,
     title: "Alamat",
-    content: "Jl. Sudirman No. 123, Jakarta Pusat, 10220",
+    content: "Jl. Raya Janti Gg. Harjuna No.59, Jaranan, Karangjambe, Kec. Banguntapan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55198",
     action: null,
   },
   {
     icon: Phone,
     title: "Telepon / WhatsApp",
-    content: "+62 812 3456 7890",
+    content: "+62 856 4642 0488",
     action: getWhatsAppUrl(),
   },
   {
@@ -173,10 +173,14 @@ const Kontak = () => {
                 Lokasi Kami
               </p>
               <p className="text-muted-foreground">
-                Jl. Sudirman No. 123, Jakarta Pusat, 10220
+                Jl. Raya Janti Gg. Harjuna No.59,<br />
+                Jaranan, Karangjambe, Kec. Banguntapan,<br />
+                Kabupaten Bantul,<br />
+                Daerah Istimewa Yogyakarta 55198
               </p>
+
               <a
-                href="https://maps.google.com"
+                href="https://maps.app.goo.gl/X7LXYqo4MwvhJS3X7"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block mt-4"

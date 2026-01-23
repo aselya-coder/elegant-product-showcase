@@ -102,6 +102,16 @@ const Footer = () => {
                   Dekorasi
                 </Link>
               </li>
+              <li>
+                <Link to="/katalog?kategori=papan-duka" className="text-background/70 hover:text-primary transition-colors text-sm">
+                  Papan Duka
+                </Link>
+              </li>
+              <li>
+                <Link to="/katalog?kategori=parsel-natal" className="text-background/70 hover:text-primary transition-colors text-sm">
+                  Parsel Natal
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -112,13 +122,13 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                 <span className="text-background/70 text-sm">
-                  Jl. Sudirman No. 123, Jakarta Pusat, 10220
+                Jl. Raya Janti Gg. Harjuna No.59, Jaranan, Karangjambe, Kec. Banguntapan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55198
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary shrink-0" />
                 <a href={getWhatsAppUrl()} className="text-background/70 hover:text-primary transition-colors text-sm">
-                  +62 812 3456 7890
+                  +62 856 4642 0488
                 </a>
               </li>
               <li className="flex items-center gap-3">

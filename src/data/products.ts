@@ -8,6 +8,8 @@ import buketLilyImg from "@/assets/products/buket-lily.jpg";
 import kuePengantinImg from "@/assets/products/kue-pengantin.jpg";
 import papanDukaImg from "@/assets/products/papanDuka.jpg";
 import parselNatalImg from "@/assets/products/parselNatal.jpg";
+import paketNatalEkslusifImg from "@/assets/products/paketNatalEkslusif.jpg";
+import paketNatalSpecialImg from "@/assets/products/paketNatalSpecial.jpg";
 
 export interface Product {
   id: string;
@@ -21,6 +23,7 @@ export interface Product {
   images: string[];
   featured: boolean;
   bestSeller: boolean;
+  exclusive: boolean;
   productUrl: string;
 }
 
@@ -47,6 +50,7 @@ export const products: Product[] = [
     images: [buketMawarImg],
     featured: true,
     bestSeller: true,
+    exclusive: false,
     productUrl: "https://bloomgift.com/produk/buket-mawar-merah-premium",
   },
   {
@@ -61,6 +65,7 @@ export const products: Product[] = [
     images: [hampersLebaranImg],
     featured: true,
     bestSeller: false,
+    exclusive: true,
     productUrl: "https://bloomgift.com/produk/hampers-lebaran-eksklusif",
   },
   {
@@ -74,6 +79,7 @@ export const products: Product[] = [
     images: [kueUlangTahunImg],
     featured: false,
     bestSeller: true,
+    exclusive: false,
     productUrl: "https://bloomgift.com/produk/kue-ulang-tahun-custom",
   },
   {
@@ -87,6 +93,7 @@ export const products: Product[] = [
     images: [buketMatahariImg],
     featured: true,
     bestSeller: false,
+    exclusive: false,
     productUrl: "https://bloomgift.com/produk/buket-bunga-matahari",
   },
   {
@@ -100,6 +107,7 @@ export const products: Product[] = [
     images: [hampersBayiImg],
     featured: false,
     bestSeller: true,
+    exclusive: false,
     productUrl: "https://bloomgift.com/produk/hampers-bayi-newborn",
   },
   {
@@ -114,6 +122,7 @@ export const products: Product[] = [
     images: [dekorasiLamaranImg],
     featured: true,
     bestSeller: false,
+    exclusive: false,
     productUrl: "https://bloomgift.com/produk/dekorasi-lamaran-romantis", 
   },
   {
@@ -127,6 +136,7 @@ export const products: Product[] = [
     images: [buketLilyImg],
     featured: false,
     bestSeller: false,
+    exclusive: false,
     productUrl: "https://bloomgift.com/produk/buket-lily-putih-elegan",
   },
   {
@@ -140,6 +150,7 @@ export const products: Product[] = [
     images: [kuePengantinImg],
     featured: true,
     bestSeller: false,
+    exclusive: false,
     productUrl: "https://bloomgift.com/produk/kue-pengantin-3-tier",
   },
   {
@@ -153,6 +164,7 @@ export const products: Product[] = [
     images: [papanDukaImg],
     featured: false,
     bestSeller: true,
+    exclusive: false,
     productUrl: "https://bloomgift.com/produk/papan-duka-cita-simpati",
   },
   {
@@ -166,8 +178,37 @@ export const products: Product[] = [
     images: [parselNatalImg],
     featured: true,
     bestSeller: false,
+    exclusive: false,
     productUrl: "https://bloomgift.com/produk/parsel-natal-elegan",
-  }
+  },
+  {
+    id: "11",
+    slug: "paket-natal-ekslusif",
+    name: "Paket Natal Ekslusif",
+    price: 4500000,
+    description: "Paket natal ekslusif dengan berbagai hadiah yang memanjakan hati dan pikiran. Termasuk bunga, kue, selimut, dan mainan lainnya. Dikemas dalam keranjang cantik dengan pita dan kartu ucapan.",
+    shortDescription: "Paket natal ekslusif dengan berbagai hadiah",
+    category: "parsel-natal",
+    images: [paketNatalEkslusifImg],
+    featured: false,
+    bestSeller: true,
+    exclusive: true,
+    productUrl: "https://bloomgift.com/produk/paket-natal-ekslusif",
+  },
+  {
+    id: "12",
+    slug: "paket-natal-special",
+    name: "Paket Natal Special",
+    price: 3500000,
+    description: "Paket natal special dengan berbagai hadiah yang memanjakan hati dan pikiran. Termasuk bunga, kue, selimut, dan mainan lainnya. Dikemas dalam keranjang cantik dengan pita dan kartu ucapan.",
+    shortDescription: "Paket natal special dengan berbagai hadiah",
+    category: "parsel-natal",
+    images: [paketNatalSpecialImg],
+    featured: false,
+    bestSeller: true,
+    exclusive: false,
+    productUrl: "https://bloomgift.com/produk/paket-natal-special",
+  },
 ];
 
 export const getProductBySlug = (slug: string): Product | undefined => {
