@@ -1,4 +1,4 @@
-import { MessageCircle } from "lucide-react";
+import { FaWhatsapp } from "react-icons/fa";
 import { getWhatsAppUrl } from "@/config/whatsapp";
 
 const WhatsAppFloat = () => {
@@ -7,10 +7,33 @@ const WhatsAppFloat = () => {
       href={getWhatsAppUrl()}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-6 right-6 z-50 w-14 h-14 md:w-16 md:h-16 bg-whatsapp text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 transition-transform duration-300 animate-pulse-wa"
       aria-label="Chat via WhatsApp"
+      className="
+        fixed bottom-6 right-6 z-50
+        flex items-center gap-3
+        bg-green-500 hover:bg-green-600
+        text-white font-semibold
+        px-5 py-3
+        rounded-full
+        shadow-lg
+        transition-all duration-300
+        hover:scale-105
+      "
     >
-      <MessageCircle className="w-7 h-7 md:w-8 md:h-8" />
+      {/* Text */}
+      <span className="whitespace-nowrap">
+        Kami Hadir 24 Jam
+      </span>
+
+      {/* WhatsApp Icon ASLI */}
+      <span className="
+        flex items-center justify-center
+        w-10 h-10
+        bg-white text-green-500
+        rounded-full
+      ">
+        <FaWhatsapp size={24} />
+      </span>
     </a>
   );
 };

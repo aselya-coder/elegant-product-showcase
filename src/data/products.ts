@@ -6,6 +6,8 @@ import hampersBayiImg from "@/assets/products/hampers-bayi.jpg";
 import dekorasiLamaranImg from "@/assets/products/dekorasi-lamaran.jpg";
 import buketLilyImg from "@/assets/products/buket-lily.jpg";
 import kuePengantinImg from "@/assets/products/kue-pengantin.jpg";
+import papanDukaImg from "@/assets/products/papanDuka.jpg";
+import parselNatalImg from "@/assets/products/parselNatal.jpg";
 
 export interface Product {
   id: string;
@@ -19,6 +21,7 @@ export interface Product {
   images: string[];
   featured: boolean;
   bestSeller: boolean;
+  productUrl: string;
 }
 
 export const categories = [
@@ -27,6 +30,8 @@ export const categories = [
   { id: "hampers", name: "Hampers" },
   { id: "kue-tart", name: "Kue & Tart" },
   { id: "dekorasi", name: "Dekorasi" },
+  { id: "papan-duka", name: "Papan Duka Cita" },
+  { id: "parsel-natal", name: "Parsel Natal" },
 ];
 
 export const products: Product[] = [
@@ -42,6 +47,7 @@ export const products: Product[] = [
     images: [buketMawarImg],
     featured: true,
     bestSeller: true,
+    productUrl: "https://bloomgift.com/produk/buket-mawar-merah-premium",
   },
   {
     id: "2",
@@ -55,6 +61,7 @@ export const products: Product[] = [
     images: [hampersLebaranImg],
     featured: true,
     bestSeller: false,
+    productUrl: "https://bloomgift.com/produk/hampers-lebaran-eksklusif",
   },
   {
     id: "3",
@@ -67,6 +74,7 @@ export const products: Product[] = [
     images: [kueUlangTahunImg],
     featured: false,
     bestSeller: true,
+    productUrl: "https://bloomgift.com/produk/kue-ulang-tahun-custom",
   },
   {
     id: "4",
@@ -79,6 +87,7 @@ export const products: Product[] = [
     images: [buketMatahariImg],
     featured: true,
     bestSeller: false,
+    productUrl: "https://bloomgift.com/produk/buket-bunga-matahari",
   },
   {
     id: "5",
@@ -91,6 +100,7 @@ export const products: Product[] = [
     images: [hampersBayiImg],
     featured: false,
     bestSeller: true,
+    productUrl: "https://bloomgift.com/produk/hampers-bayi-newborn",
   },
   {
     id: "6",
@@ -104,6 +114,7 @@ export const products: Product[] = [
     images: [dekorasiLamaranImg],
     featured: true,
     bestSeller: false,
+    productUrl: "https://bloomgift.com/produk/dekorasi-lamaran-romantis", 
   },
   {
     id: "7",
@@ -116,6 +127,7 @@ export const products: Product[] = [
     images: [buketLilyImg],
     featured: false,
     bestSeller: false,
+    productUrl: "https://bloomgift.com/produk/buket-lily-putih-elegan",
   },
   {
     id: "8",
@@ -128,7 +140,34 @@ export const products: Product[] = [
     images: [kuePengantinImg],
     featured: true,
     bestSeller: false,
+    productUrl: "https://bloomgift.com/produk/kue-pengantin-3-tier",
   },
+  {
+    id: "9",
+    slug: "papan-duka-cita-simpati",
+    name: "Papan Duka Cita Simpati",  
+    price: 2500000,
+    description: "Papan duka cita simpati dengan desain elegan dan mewah. Dapat digunakan sebagai papan duka atau sebagai dekorasi duka. Tersedia dalam berbagai ukuran dan warna.",
+    shortDescription: "Papan duka cita simpati dengan desain elegan",
+    category: "papan-duka",
+    images: [papanDukaImg],
+    featured: false,
+    bestSeller: true,
+    productUrl: "https://bloomgift.com/produk/papan-duka-cita-simpati",
+  },
+  {
+    id: "10",
+    slug: "parsel-natal-elegan",
+    name: "Parsel Natal Elegan",
+    price: 1800000,
+    description: "Parsel natal elegan dengan desain mewah dan mewah. Dapat digunakan sebagai dekorasi duka atau sebagai papan duka. Tersedia dalam berbagai ukuran dan warna.",
+    shortDescription: "Parsel natal elegan dengan desain mewah",
+    category: "parsel-natal",
+    images: [parselNatalImg],
+    featured: true,
+    bestSeller: false,
+    productUrl: "https://bloomgift.com/produk/parsel-natal-elegan",
+  }
 ];
 
 export const getProductBySlug = (slug: string): Product | undefined => {

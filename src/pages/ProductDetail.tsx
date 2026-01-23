@@ -30,7 +30,7 @@ const ProductDetail = () => {
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-    : 0;
+    : 0; 
 
   return (
     <Layout>
@@ -121,7 +121,7 @@ const ProductDetail = () => {
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <a
-                  href={getProductWhatsAppUrl(product.name)}
+                  href={getProductWhatsAppUrl(product.name, product.productUrl)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1"

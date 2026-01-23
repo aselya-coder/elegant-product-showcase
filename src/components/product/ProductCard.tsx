@@ -72,7 +72,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
         {/* Action Button */}
         <a
-          href={getProductWhatsAppUrl(product.name)}
+          href={getProductWhatsAppUrl(product.name, product.productUrl)}
           target="_blank"
           rel="noopener noreferrer"
           className="block pt-2"
