@@ -10,6 +10,11 @@ import papanDukaImg from "@/assets/products/papanDuka.jpg";
 import parselNatalImg from "@/assets/products/parselNatal.jpg";
 import paketNatalEkslusifImg from "@/assets/products/paketNatalEkslusif.jpg";
 import paketNatalSpecialImg from "@/assets/products/paketNatalSpecial.jpg";
+import DekorasilamaransimpleImg from "@/assets/products/Dekorasilamaransimple.jpg";
+import DekorasilamaranImg from "@/assets/products/Dekorasilamaran.jpg";
+import Papanbunga_akrilikImg from "@/assets/products/Papanbunga_akrilik.jpg";
+import PapanBungaHappyWeddingBalImg from "@/assets/products/PapanBungaHappyWeddingBal.jpg";
+import papandukacitaImg from "@/assets/products/papandukacita.jpg";
 
 export interface Product {
   id: string;
@@ -33,7 +38,7 @@ export const categories = [
   { id: "hampers", name: "Hampers" },
   { id: "kue-tart", name: "Kue & Tart" },
   { id: "dekorasi", name: "Dekorasi" },
-  { id: "papan-duka", name: "Papan Duka Cita" },
+  { id: "papan-bunga", name: "Papan Bunga" },
   { id: "parsel-natal", name: "Parsel Natal" },
 ];
 
@@ -160,10 +165,10 @@ export const products: Product[] = [
     price: 2500000,
     description: "Papan duka cita simpati dengan desain elegan dan mewah. Dapat digunakan sebagai papan duka atau sebagai dekorasi duka. Tersedia dalam berbagai ukuran dan warna.",
     shortDescription: "Papan duka cita simpati dengan desain elegan",
-    category: "papan-duka",
+    category: "papan-bunga",
     images: [papanDukaImg],
     featured: false,
-    bestSeller: true,
+    bestSeller: false,
     exclusive: false,
     productUrl: "https://bloomgift.com/produk/papan-duka-cita-simpati",
   },
@@ -171,13 +176,13 @@ export const products: Product[] = [
     id: "10",
     slug: "parsel-natal-elegan",
     name: "Parsel Natal Elegan",
-    price: 1800000,
+    price: 3000000,
     description: "Parsel natal elegan dengan desain mewah dan mewah. Dapat digunakan sebagai dekorasi duka atau sebagai papan duka. Tersedia dalam berbagai ukuran dan warna.",
     shortDescription: "Parsel natal elegan dengan desain mewah",
     category: "parsel-natal",
     images: [parselNatalImg],
     featured: true,
-    bestSeller: false,
+    bestSeller: true,
     exclusive: false,
     productUrl: "https://bloomgift.com/produk/parsel-natal-elegan",
   },
@@ -191,7 +196,7 @@ export const products: Product[] = [
     category: "parsel-natal",
     images: [paketNatalEkslusifImg],
     featured: false,
-    bestSeller: true,
+    bestSeller: false,
     exclusive: true,
     productUrl: "https://bloomgift.com/produk/paket-natal-ekslusif",
   },
@@ -205,10 +210,80 @@ export const products: Product[] = [
     category: "parsel-natal",
     images: [paketNatalSpecialImg],
     featured: false,
-    bestSeller: true,
+    bestSeller: false,
     exclusive: false,
     productUrl: "https://bloomgift.com/produk/paket-natal-special",
   },
+  {
+    id: "13",
+    slug: "dekorasi-lamaran-simple-elegant",
+    name: "Dekorasi Lamaran Simple Elegant",
+    price: 3500000,
+    description: "Dekorasi lamaran simple elegant dengan desain mewah dan mewah. Dapat digunakan sebagai dekorasi lamaran atau sebagai dekorasi duka. Tersedia dalam berbagai ukuran dan warna.",
+    shortDescription: "Dekorasi lamaran simple elegant dengan desain elegan",
+    category: "dekorasi",
+    images: [DekorasilamaransimpleImg],
+    featured: false,
+    bestSeller: true,
+    exclusive: false,
+    productUrl: "https://bloomgift.com/produk/dekorasi-lamaran-simple-elegant",
+  },
+  {
+    id: "14",
+    slug: "dekorasi-lamaran-elegant",
+    name: "Dekorasi Lamaran Elegant",
+    price: 4000000,
+    description: "Dekorasi lamaran elegant dengan desain mewah dan mewah. Dapat digunakan sebagai dekorasi lamaran atau sebagai dekorasi duka. Tersedia dalam berbagai ukuran dan warna.",
+    shortDescription: "Dekorasi lamaran elegant dengan desain elegan",
+    category: "dekorasi",
+    images: [DekorasilamaranImg],
+    featured: false,
+    bestSeller: false,
+    exclusive: false,
+    productUrl: "https://bloomgift.com/produk/dekorasi-lamaran-elegant",
+  },
+  {
+    id: "15",
+    slug: "papan-bunga-akrilik-modern",
+    name: "Papan Bunga Akrilik Modern",
+    price: 3000000,
+    description: "Papan bunga akrilik modern dengan desain elegan dan mewah. Dapat digunakan sebagai papan bunga atau sebagai dekorasi duka. Tersedia dalam berbagai ukuran dan warna.",
+    shortDescription: "Papan bunga akrilik modern dengan desain elegan",
+    category: "papan-bunga",
+    images: [Papanbunga_akrilikImg],
+    featured: false,
+    bestSeller: true,
+    exclusive: false,
+    productUrl: "https://bloomgift.com/produk/papan-bunga-akrilik-modern",
+  },
+  {
+    id: "16",
+    slug: "papan-bunga-happy-wedding-bal",
+    name: "Papan Bunga Wedding",
+    price: 10000000,
+    description: "Papan bunga happy wedding bal dengan desain elegan dan mewah. Dapat digunakan sebagai papan bunga atau sebagai dekorasi pernikahan. Tersedia dalam berbagai ukuran dan warna.",
+    shortDescription: "Papan bunga happy wedding bal dengan desain elegan",
+    category: "papan-bunga",
+    images: [PapanBungaHappyWeddingBalImg],
+    featured: true,
+    bestSeller: false,
+    exclusive: false,
+    productUrl: "https://bloomgift.com/produk/papan-bunga-happy-wedding-bal",
+  },
+  {
+    id: "17",
+    slug: "papan-duka-cita",
+    name: "Papan Duka Cita",
+    price: 2000000,
+    description: "Papan duka cita simpati dengan desain elegan. Dapat digunakan sebagai dekorasi duka atau sebagai papan duka. Tersedia dalam berbagai ukuran dan warna.",
+    shortDescription: "Papan duka cita simpati dengan desain elegan",
+    category: "papan-bunga",
+    images: [papandukacitaImg],
+    featured: false,
+    bestSeller: false,
+    exclusive: false,
+    productUrl: "https://bloomgift.com/produk/papan-duka-cita-simpati",
+  }
 ];
 
 export const getProductBySlug = (slug: string): Product | undefined => {
