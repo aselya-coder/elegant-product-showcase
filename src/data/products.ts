@@ -15,6 +15,8 @@ import DekorasilamaranImg from "@/assets/products/Dekorasilamaran.jpg";
 import Papanbunga_akrilikImg from "@/assets/products/Papanbunga_akrilik.jpg";
 import PapanBungaHappyWeddingBalImg from "@/assets/products/PapanBungaHappyWeddingBal.jpg";
 import papandukacitaImg from "@/assets/products/papandukacita.jpg";
+import BentoCakeImg from "@/assets/products/BentoCake.jpg";
+import HampersLebaranImg from "@/assets/products/hampersLebaran.jpg";
 
 export interface Product {
   id: string;
@@ -29,6 +31,7 @@ export interface Product {
   featured: boolean;
   bestSeller: boolean;
   exclusive: boolean;
+  premium: boolean;
   productUrl: string;
 }
 
@@ -54,8 +57,9 @@ export const products: Product[] = [
     category: "buket-bunga",
     images: [buketMawarImg],
     featured: true,
-    bestSeller: true,
+    bestSeller: false,
     exclusive: false,
+    premium: true,
     productUrl: "https://bloomgift.com/produk/buket-mawar-merah-premium",
   },
   {
@@ -71,6 +75,7 @@ export const products: Product[] = [
     featured: true,
     bestSeller: false,
     exclusive: true,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/hampers-lebaran-eksklusif",
   },
   {
@@ -83,8 +88,9 @@ export const products: Product[] = [
     category: "kue-tart",
     images: [kueUlangTahunImg],
     featured: false,
-    bestSeller: true,
+    bestSeller: false,
     exclusive: false,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/kue-ulang-tahun-custom",
   },
   {
@@ -99,6 +105,7 @@ export const products: Product[] = [
     featured: true,
     bestSeller: false,
     exclusive: false,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/buket-bunga-matahari",
   },
   {
@@ -113,6 +120,7 @@ export const products: Product[] = [
     featured: false,
     bestSeller: true,
     exclusive: false,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/hampers-bayi-newborn",
   },
   {
@@ -128,6 +136,7 @@ export const products: Product[] = [
     featured: true,
     bestSeller: false,
     exclusive: false,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/dekorasi-lamaran-romantis", 
   },
   {
@@ -142,6 +151,7 @@ export const products: Product[] = [
     featured: false,
     bestSeller: false,
     exclusive: false,
+    premium: true,
     productUrl: "https://bloomgift.com/produk/buket-lily-putih-elegan",
   },
   {
@@ -153,9 +163,10 @@ export const products: Product[] = [
     shortDescription: "Kue pengantin 3 tingkat dengan desain custom",
     category: "kue-tart",
     images: [kuePengantinImg],
-    featured: true,
+    featured: false,
     bestSeller: false,
     exclusive: false,
+    premium: true,
     productUrl: "https://bloomgift.com/produk/kue-pengantin-3-tier",
   },
   {
@@ -170,6 +181,7 @@ export const products: Product[] = [
     featured: false,
     bestSeller: false,
     exclusive: false,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/papan-duka-cita-simpati",
   },
   {
@@ -177,13 +189,14 @@ export const products: Product[] = [
     slug: "parsel-natal-elegan",
     name: "Parsel Natal Elegan",
     price: 3000000,
-    description: "Parsel natal elegan dengan desain mewah dan mewah. Dapat digunakan sebagai dekorasi duka atau sebagai papan duka. Tersedia dalam berbagai ukuran dan warna.",
+    description: "Parsel natal elegan dengan desain mewah. Dapat digunakan sebagai hadiah natal untuk keluarga, teman, atau rekan bisnis. Dikemas dalam keranjang cantik dengan pita dan kartu ucapan.",
     shortDescription: "Parsel natal elegan dengan desain mewah",
     category: "parsel-natal",
     images: [parselNatalImg],
-    featured: true,
+    featured: false,
     bestSeller: true,
     exclusive: false,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/parsel-natal-elegan",
   },
   {
@@ -198,6 +211,7 @@ export const products: Product[] = [
     featured: false,
     bestSeller: false,
     exclusive: true,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/paket-natal-ekslusif",
   },
   {
@@ -212,6 +226,7 @@ export const products: Product[] = [
     featured: false,
     bestSeller: false,
     exclusive: false,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/paket-natal-special",
   },
   {
@@ -219,13 +234,14 @@ export const products: Product[] = [
     slug: "dekorasi-lamaran-simple-elegant",
     name: "Dekorasi Lamaran Simple Elegant",
     price: 3500000,
-    description: "Dekorasi lamaran simple elegant dengan desain mewah dan mewah. Dapat digunakan sebagai dekorasi lamaran atau sebagai dekorasi duka. Tersedia dalam berbagai ukuran dan warna.",
-    shortDescription: "Dekorasi lamaran simple elegant dengan desain elegan",
+    description: "Dekorasi lamaran simple elegant dengan desain mewah dan elegant. Dapat digunakan sebagai dekorasi lamaran atau tunangan. Tersedia dalam berbagai ukuran dan warna.",
+    shortDescription: "Dekorasi lamaran elegant dengan desain simple",
     category: "dekorasi",
     images: [DekorasilamaransimpleImg],
     featured: false,
     bestSeller: true,
     exclusive: false,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/dekorasi-lamaran-simple-elegant",
   },
   {
@@ -233,13 +249,14 @@ export const products: Product[] = [
     slug: "dekorasi-lamaran-elegant",
     name: "Dekorasi Lamaran Elegant",
     price: 4000000,
-    description: "Dekorasi lamaran elegant dengan desain mewah dan mewah. Dapat digunakan sebagai dekorasi lamaran atau sebagai dekorasi duka. Tersedia dalam berbagai ukuran dan warna.",
-    shortDescription: "Dekorasi lamaran elegant dengan desain elegan",
+    description: "Dekorasi lamaran elegant dengan desain mewah dan elegant. Dapat digunakan sebagai dekorasi lamaran atau tunangan. Tersedia dalam berbagai ukuran dan warna.",
+    shortDescription: "Dekorasi lamaran elegant dengan desain mewah",
     category: "dekorasi",
     images: [DekorasilamaranImg],
     featured: false,
     bestSeller: false,
     exclusive: false,
+    premium: true,
     productUrl: "https://bloomgift.com/produk/dekorasi-lamaran-elegant",
   },
   {
@@ -247,13 +264,14 @@ export const products: Product[] = [
     slug: "papan-bunga-akrilik-modern",
     name: "Papan Bunga Akrilik Modern",
     price: 3000000,
-    description: "Papan bunga akrilik modern dengan desain elegan dan mewah. Dapat digunakan sebagai papan bunga atau sebagai dekorasi duka. Tersedia dalam berbagai ukuran dan warna.",
+    description: "Papan bunga akrilik modern dengan desain elegan dan mewah. Dapat digunakan sebagai papan bunga atau sebagai dekorasi wisuda. Tersedia dalam berbagai ukuran dan warna.",
     shortDescription: "Papan bunga akrilik modern dengan desain elegan",
     category: "papan-bunga",
     images: [Papanbunga_akrilikImg],
     featured: false,
     bestSeller: true,
     exclusive: false,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/papan-bunga-akrilik-modern",
   },
   {
@@ -265,9 +283,10 @@ export const products: Product[] = [
     shortDescription: "Papan bunga happy wedding bal dengan desain elegan",
     category: "papan-bunga",
     images: [PapanBungaHappyWeddingBalImg],
-    featured: true,
+    featured: false,
     bestSeller: false,
     exclusive: false,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/papan-bunga-happy-wedding-bal",
   },
   {
@@ -282,7 +301,38 @@ export const products: Product[] = [
     featured: false,
     bestSeller: false,
     exclusive: false,
+    premium: false,
     productUrl: "https://bloomgift.com/produk/papan-duka-cita-simpati",
+  },
+  {
+    id: "18",
+    slug: "bento-cake-unik",
+    name: "Bento Cake Unik",  
+    price: 50000,
+    description: "Bento cake unik dengan berbagai pilihan desain lucu dan menarik. Cocok untuk hadiah ulang tahun anak-anak atau sebagai camilan spesial. Terbuat dari bahan-bahan premium dan dekorasi fondant berkualitas tinggi.",
+    shortDescription: "Bento cake dengan desain unik dan lucu", 
+    category: "kue-tart",
+    images: [BentoCakeImg],
+    featured: false,
+    bestSeller: true,
+    exclusive: false,
+    premium: false,
+    productUrl: "https://bloomgift.com/produk/bento-cake-unik",
+  },
+  {
+    id: "19",
+    slug: "hampers-lebaran",
+    name: "Hampers Lebaran",
+    price: 500000,
+    description: "Hampers lebaran dengan berbagai isian snack yang menarik. Cocok untuk hampers lebaran keluarga atau sebagai camilan spesial.",
+    shortDescription: "Hampers lebaran dengan isian snack premium",
+    category: "hampers",
+    images: [HampersLebaranImg],
+    featured: false,
+    bestSeller: true,
+    exclusive: false,
+    premium: true,
+    productUrl: "https://bloomgift.com/produk/hampers-lebaran",
   }
 ];
 

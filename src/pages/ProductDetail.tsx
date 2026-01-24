@@ -104,6 +104,11 @@ const ProductDetail = () => {
                     Exclusive
                   </span>
                 )}
+                {product.premium && (
+                  <span className="bg-yellow-900 text-white text-xs font-medium px-3 py-1 rounded-full">
+                    Premium
+                  </span>
+                )}
               </div>
 
               {/* Price */}

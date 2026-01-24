@@ -103,8 +103,8 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/katalog?kategori=papan-duka" className="text-background/70 hover:text-primary transition-colors text-sm">
-                  Papan Duka
+                <Link to="/katalog?kategori=papan-bunga" className="text-background/70 hover:text-primary transition-colors text-sm">
+                  Papan Bunga
                 </Link>
               </li>
               <li>
