@@ -47,4 +47,4 @@ Toggle.displayName = TogglePrimitive.Root.displayName;
 // ===============================
 // EXPORT
 // ===============================
-export { Toggle };
+export { Toggle, toggleVariants };
