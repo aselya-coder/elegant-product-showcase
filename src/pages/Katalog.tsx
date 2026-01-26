@@ -1,12 +1,16 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, SlidersHorizontal, ArrowUpDown, X } from "lucide-react";
+import { Search, SlidersHorizontal, ArrowUpDown, X, MapPin } from "lucide-react";
 
 import Layout from "@/components/layout/Layout";
 import ProductCard from "@/components/product/ProductCard";
 import { products, categories, getProductsByCategory } from "@/data/products";
+import { citiesByIsland } from "@/data/citiesByIsland";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+
+// Gabungkan semua kota dari seluruh pulau
+const ALL_CITIES = Object.values(citiesByIsland).flat();
 
 const Katalog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +24,19 @@ const Katalog = () => {
 
   /* ===== SEARCH PRODUK ===== */
   const [productQuery, setProductQuery] = useState("");
+
+  /* ===== SEARCH KOTA ===== */
+  const [cityQuery, setCityQuery] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
+  const [showCitySuggestion, setShowCitySuggestion] = useState(false);
+
+  // Filter kota berdasarkan query
+  const citySuggestions = useMemo(() => {
+    if (!cityQuery.trim() || selectedCity) return [];
+    return ALL_CITIES.filter((city) =>
+      city.toLowerCase().includes(cityQuery.toLowerCase())
+    ).slice(0, 15);
+  }, [cityQuery, selectedCity]);
 
   /* ===== PRICE FILTER ===== */
   const minPrice = Math.min(...products.map((p) => p.price));
@@ -70,6 +87,8 @@ const Katalog = () => {
 
   const resetFilters = () => {
     setProductQuery("");
+    setCityQuery("");
+    setSelectedCity("");
     setPriceRange([minPrice, maxPrice]);
     setSortOrder("none");
     setSelectedCategory("all");
@@ -84,7 +103,7 @@ const Katalog = () => {
     }).format(price);
   };
 
-  const hasActiveFilters = productQuery || priceRange[0] > minPrice || priceRange[1] < maxPrice || sortOrder !== "none";
+  const hasActiveFilters = productQuery || selectedCity || priceRange[0] > minPrice || priceRange[1] < maxPrice || sortOrder !== "none";
 
   return (
     <Layout>
@@ -208,6 +227,66 @@ const Katalog = () => {
                       Termahal
                     </button>
                   </div>
+                </div>
+
+                {/* City Search */}
+                <div className="space-y-3">
+                  <h3 className="font-medium text-foreground flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Kota Pengiriman
+                  </h3>
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={cityQuery}
+                      onFocus={() => setShowCitySuggestion(true)}
+                      onBlur={() => setTimeout(() => setShowCitySuggestion(false), 200)}
+                      onChange={(e) => {
+                        setCityQuery(e.target.value);
+                        setSelectedCity("");
+                      }}
+                      placeholder="Cari kota di seluruh Indonesia..."
+                      className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                    />
+                    {cityQuery && (
+                      <button
+                        onClick={() => {
+                          setCityQuery("");
+                          setSelectedCity("");
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+
+                    {/* AUTOCOMPLETE DROPDOWN */}
+                    {showCitySuggestion && citySuggestions.length > 0 && (
+                      <div className="absolute z-50 w-full mt-2 bg-popover border border-border rounded-xl shadow-lg max-h-56 overflow-auto">
+                        {citySuggestions.map((city) => (
+                          <button
+                            key={city}
+                            onMouseDown={(e) => e.preventDefault()}
+                            onClick={() => {
+                              setSelectedCity(city);
+                              setCityQuery(city);
+                              setShowCitySuggestion(false);
+                            }}
+                            className="block w-full text-left px-4 py-2.5 text-sm hover:bg-accent transition"
+                          >
+                            {city}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {selectedCity && (
+                    <p className="text-sm text-primary">
+                      ✓ Pengiriman tersedia ke <strong>{selectedCity}</strong>
+                    </p>
+                  )}
                 </div>
               </div>
             )}
