@@ -5,13 +5,10 @@ import { Search, SlidersHorizontal, ArrowUpDown, X } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import ProductCard from "@/components/product/ProductCard";
 import { products, categories, getProductsByCategory } from "@/data/products";
-import { citiesByIsland } from "@/data/citiesByIsland";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 
 const Katalog = () => {
-  const CITIES = Object.values(citiesByIsland).flat();
-
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState(
     searchParams.get("kategori") || "all"
@@ -23,11 +20,6 @@ const Katalog = () => {
 
   /* ===== SEARCH PRODUK ===== */
   const [productQuery, setProductQuery] = useState("");
-
-  /* ===== SEARCH KOTA ===== */
-  const [cityQuery, setCityQuery] = useState("");
-  const [selectedCity, setSelectedCity] = useState("");
-  const [showSuggestion, setShowSuggestion] = useState(false);
 
   /* ===== PRICE FILTER ===== */
   const minPrice = Math.min(...products.map((p) => p.price));
@@ -49,12 +41,6 @@ const Katalog = () => {
       setSearchParams({ kategori: categoryId });
     }
   };
-
-  const citySuggestions = CITIES.filter(
-    (city) =>
-      city.toLowerCase().includes(cityQuery.toLowerCase()) &&
-      city !== selectedCity
-  );
 
   /* ===== FILTERED & SORTED PRODUCTS ===== */
   const filteredProducts = useMemo(() => {
@@ -143,7 +129,7 @@ const Katalog = () => {
               )}
             </div>
 
-            {/* Filter Toggle Button (Mobile) */}
+            {/* Filter Toggle Button */}
             <div className="flex items-center gap-3">
               <Button
                 variant="outline"
@@ -222,50 +208,6 @@ const Katalog = () => {
                       Termahal
                     </button>
                   </div>
-                </div>
-
-                {/* City Search */}
-                <div className="space-y-3">
-                  <h3 className="font-medium text-foreground">Kota Pengiriman</h3>
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <input
-                      type="text"
-                      value={cityQuery}
-                      onFocus={() => setShowSuggestion(true)}
-                      onChange={(e) => {
-                        setCityQuery(e.target.value);
-                        setSelectedCity("");
-                      }}
-                      placeholder="Cari kota pengiriman"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-                    />
-
-                    {/* AUTOCOMPLETE */}
-                    {showSuggestion && cityQuery && !selectedCity && citySuggestions.length > 0 && (
-                      <div className="absolute z-20 w-full mt-2 bg-background border border-border rounded-xl shadow-soft max-h-48 overflow-auto">
-                        {citySuggestions.slice(0, 10).map((city) => (
-                          <button
-                            key={city}
-                            onClick={() => {
-                              setSelectedCity(city);
-                              setCityQuery(city);
-                              setShowSuggestion(false);
-                            }}
-                            className="block w-full text-left px-4 py-2 text-sm hover:bg-accent transition"
-                          >
-                            {city}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {selectedCity && (
-                    <p className="text-sm text-muted-foreground">
-                      Pengiriman ke <strong>{selectedCity}</strong>
-                    </p>
-                  )}
                 </div>
               </div>
             )}
