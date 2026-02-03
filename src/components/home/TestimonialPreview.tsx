@@ -1,9 +1,10 @@
 import { Star, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { testimonials } from "@/data/testimonials";
+import { useTestimonials } from "@/hooks/useTestimonials";
 
 const TestimonialPreview = () => {
+  const { data: testimonials = [], isLoading } = useTestimonials();
   const previewTestimonials = testimonials.slice(0, 3);
 
   return (
@@ -24,8 +25,17 @@ const TestimonialPreview = () => {
         </div>
 
         {/* Testimonials Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {previewTestimonials.map((testimonial) => (
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Memuat testimoni...</p>
+          </div>
+        ) : previewTestimonials.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Belum ada testimoni</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {previewTestimonials.map((testimonial) => (
             <div
               key={testimonial.id}
               className="bg-card p-8 rounded-xl shadow-soft hover:shadow-card transition-shadow duration-300"
@@ -68,7 +78,8 @@ const TestimonialPreview = () => {
               )}
             </div>
           ))}
-        </div>
+          </div>
+        )}
 
         {/* CTA */}
         <div className="text-center mt-12">

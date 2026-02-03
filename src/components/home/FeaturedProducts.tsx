@@ -2,10 +2,15 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/product/ProductCard";
-import { getFeaturedProducts } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 
 const FeaturedProducts = () => {
-  const featuredProducts = getFeaturedProducts().slice(0, 4);
+  const { data: products = [], isLoading } = useProducts();
+  
+  // Filter featured products
+  const featuredProducts = products
+    .filter((p) => p.is_featured && p.is_active)
+    .slice(0, 4);
 
   return (
     <section className="section-padding bg-background">
@@ -25,11 +30,21 @@ const FeaturedProducts = () => {
         </div>
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
-          {featuredProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Memuat produk...</p>
+          </div>
+        ) : featuredProducts.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Belum ada produk unggulan</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
+            {featuredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        )}
 
         {/* CTA */}
         <div className="text-center mt-12">

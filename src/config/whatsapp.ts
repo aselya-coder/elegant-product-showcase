@@ -1,35 +1,46 @@
+// ===============================
 // WhatsApp Configuration
-// Ganti nomor di bawah ini dengan nomor WhatsApp bisnis Anda
-// Format: kode negara + nomor (tanpa + atau spasi)
+// ===============================
+// Format nomor: kode negara + nomor (tanpa + dan tanpa spasi)
 
 export const WHATSAPP_CONFIG = {
-  // Nomor WhatsApp (contoh: 6281234567890 untuk Indonesia)
   phoneNumber: "6285646420488",
-  
-  // Pesan default saat klik floating button
-  defaultMessage: "Halo, saya ingin bertanya tentang produk di website Anda.",
-  
-  // Template pesan untuk produk
-  productMessage: (productName: string, producturl: string) => 
+
+  // Pesan default (floating button)
+  defaultMessage:
+    "Halo, saya ingin bertanya tentang produk di website Anda.",
+
+  // Pesan konsultasi
+  consultationMessage:
+    "Halo, saya ingin berkonsultasi mengenai produk yang cocok untuk kebutuhan saya.",
+
+  // Pesan untuk produk tertentu
+  productMessage: (productName: string, productUrl: string) =>
     `Halo, saya tertarik dengan produk berikut:
-    Nama Produk: ${productName}
-    Link Produk: ${producturl}
-    dari website Anda.`,
-  
-  // Template pesan untuk konsultasi
-  consultationMessage: "Halo, saya ingin berkonsultasi mengenai produk yang cocok untuk kebutuhan saya.",
+Nama Produk: ${productName}
+Link Produk: ${productUrl}
+`,
 };
 
-// Fungsi untuk membuat URL WhatsApp
-export const getWhatsAppUrl = (message: string = WHATSAPP_CONFIG.defaultMessage) => {
-  const encodedMessage = encodeURIComponent(message);
-  return `https://wa.me/${WHATSAPP_CONFIG.phoneNumber}?text=${encodedMessage}`;
+// ===============================
+// Helper Functions
+// ===============================
+
+// URL WhatsApp default / konsultasi
+export const getWhatsAppUrl = (
+  message: string = WHATSAPP_CONFIG.consultationMessage
+) => {
+  return `https://wa.me/${WHATSAPP_CONFIG.phoneNumber}?text=${encodeURIComponent(
+    message
+  )}`;
 };
 
-// Fungsi untuk membuat URL WhatsApp untuk produk tertentu
+// URL WhatsApp untuk produk tertentu
 export const getProductWhatsAppUrl = (
   productName: string,
-  producturl: string,
+  productUrl: string
 ) => {
-  return getWhatsAppUrl(WHATSAPP_CONFIG.productMessage(productName, producturl));
+  return getWhatsAppUrl(
+    WHATSAPP_CONFIG.productMessage(productName, productUrl)
+  );
 };

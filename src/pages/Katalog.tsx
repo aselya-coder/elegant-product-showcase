@@ -38,10 +38,6 @@ const Katalog = () => {
     ).slice(0, 15);
   }, [cityQuery, selectedCity]);
 
-  /* ===== PRICE FILTER ===== */
-  const minPrice = Math.min(...products.map((p) => p.price));
-  const maxPrice = Math.max(...products.map((p) => p.price));
-  const [priceRange, setPriceRange] = useState<[number, number]>([minPrice, maxPrice]);
 
   /* ===== SORTING ===== */
   const [sortOrder, setSortOrder] = useState<"none" | "asc" | "desc">("none");
@@ -70,10 +66,7 @@ const Katalog = () => {
       );
     }
 
-    // Filter by price range
-    result = result.filter(
-      (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
-    );
+    
 
     // Sort by price
     if (sortOrder === "asc") {
@@ -83,13 +76,12 @@ const Katalog = () => {
     }
 
     return result;
-  }, [selectedCategory, productQuery, priceRange, sortOrder]);
+  }, [selectedCategory, productQuery, sortOrder]);
 
   const resetFilters = () => {
     setProductQuery("");
     setCityQuery("");
     setSelectedCity("");
-    setPriceRange([minPrice, maxPrice]);
     setSortOrder("none");
     setSelectedCategory("all");
     setSearchParams({});
@@ -103,7 +95,7 @@ const Katalog = () => {
     }).format(price);
   };
 
-  const hasActiveFilters = productQuery || selectedCity || priceRange[0] > minPrice || priceRange[1] < maxPrice || sortOrder !== "none";
+  const hasActiveFilters = productQuery || selectedCity || sortOrder !== "none";
 
   return (
     <Layout>
@@ -170,64 +162,88 @@ const Katalog = () => {
             {/* Filters Panel */}
             {showFilters && (
               <div className="p-6 bg-card border border-border rounded-xl space-y-6 animate-in fade-in slide-in-from-top-2">
-                {/* Price Range */}
-                <div className="space-y-4">
-                  <h3 className="font-medium text-foreground">Rentang Harga</h3>
-                  <div className="px-2">
-                    <Slider
-                      value={priceRange}
-                      onValueChange={(value) => setPriceRange(value as [number, number])}
-                      min={minPrice}
-                      max={maxPrice}
-                      step={50000}
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>{formatPrice(priceRange[0])}</span>
-                    <span>{formatPrice(priceRange[1])}</span>
-                  </div>
-                </div>
 
                 {/* Sorting */}
-                <div className="space-y-3">
-                  <h3 className="font-medium text-foreground flex items-center gap-2">
-                    <ArrowUpDown className="w-4 h-4" />
-                    Urutkan
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => setSortOrder("none")}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-                        sortOrder === "none"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-accent"
-                      }`}
-                    >
-                      Default
-                    </button>
-                    <button
-                      onClick={() => setSortOrder("asc")}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-                        sortOrder === "asc"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-accent"
-                      }`}
-                    >
-                      Termurah
-                    </button>
-                    <button
-                      onClick={() => setSortOrder("desc")}
-                      className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-                        sortOrder === "desc"
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-muted text-muted-foreground hover:bg-accent"
-                      }`}
-                    >
-                      Termahal
-                    </button>
-                  </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => handleCategoryChange("all")}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                      selectedCategory === "all"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-accent"
+                    }`}
+                  >
+                    Semua
+                  </button>
+
+                  <button
+                    onClick={() => handleCategoryChange("buket-bunga")}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                      selectedCategory === "buket-bunga"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-accent"
+                    }`}
+                  >
+                    Buket Bunga
+                  </button>
+
+                  <button
+                    onClick={() => handleCategoryChange("hampers")}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                      selectedCategory === "hampers"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-accent"
+                    }`}
+                  >
+                    Hampers
+                  </button>
+
+                  <button
+                    onClick={() => handleCategoryChange("kue-tart")}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                      selectedCategory === "kue-tart"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-accent"
+                    }`}
+                  >
+                    Kue & Tart
+                  </button>
+
+                  <button
+                    onClick={() => handleCategoryChange("dekorasi")}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                      selectedCategory === "dekorasi"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-accent"
+                    }`}
+                  >
+                    Dekorasi
+                  </button>
+
+                  <button
+                    onClick={() => handleCategoryChange("papan-bunga")}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                      selectedCategory === "papan-bunga"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-accent"
+                    }`}
+                  >
+                    Papan Bunga
+                  </button>
+
+                  <button
+                    onClick={() => handleCategoryChange("parsel-natal")}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                      selectedCategory === "parsel-natal"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-accent"
+                    }`}
+                  >
+                    Parsel Natal
+                  </button>
                 </div>
+
+
 
                 {/* City Search */}
                 <div className="space-y-3">

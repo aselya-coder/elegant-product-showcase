@@ -1,5 +1,12 @@
-import { useState, useEffect } from "react";
-import { Phone, Mail, MessageSquare, Search, Loader2, ExternalLink } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import {
+  Phone,
+  Mail,
+  MessageSquare,
+  Search,
+  Loader2,
+  ExternalLink,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -19,8 +26,12 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+
+/* ================= TYPES ================= */
 
 interface Inquiry {
   id: string;
@@ -33,6 +44,8 @@ interface Inquiry {
   notes: string | null;
   created_at: string;
 }
+
+/* ================= CONSTANTS ================= */
 
 const statusColors: Record<string, string> = {
   pending: "bg-yellow-100 text-yellow-700",
@@ -48,17 +61,22 @@ const statusLabels: Record<string, string> = {
   cancelled: "Dibatalkan",
 };
 
+/* ================= COMPONENT ================= */
+
 const AdminInquiries = () => {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
   const [notes, setNotes] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+
   const { toast } = useToast();
 
-  const fetchInquiries = async () => {
+  /* ================= FETCH ================= */
+
+  const fetchInquiries = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from("inquiries")
@@ -66,9 +84,9 @@ const AdminInquiries = () => {
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setInquiries(data || []);
-    } catch (error) {
-      console.error("Error fetching inquiries:", error);
+      setInquiries(data ?? []);
+    } catch (error: unknown) {
+      console.error(error);
       toast({
         title: "Error",
         description: "Gagal memuat data inquiry",
@@ -77,11 +95,13 @@ const AdminInquiries = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchInquiries();
-  }, []);
+  }, [fetchInquiries]);
+
+  /* ================= ACTIONS ================= */
 
   const handleStatusChange = async (id: string, status: string) => {
     try {
@@ -91,16 +111,20 @@ const AdminInquiries = () => {
         .eq("id", id);
 
       if (error) throw error;
-      
+
       toast({
         title: "Berhasil",
         description: "Status inquiry diperbarui",
       });
+
       fetchInquiries();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Gagal mengupdate status",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Gagal mengupdate status",
         variant: "destructive",
       });
     }
@@ -108,7 +132,7 @@ const AdminInquiries = () => {
 
   const handleSaveNotes = async () => {
     if (!selectedInquiry) return;
-    
+
     setIsSaving(true);
     try {
       const { error } = await supabase
@@ -117,17 +141,21 @@ const AdminInquiries = () => {
         .eq("id", selectedInquiry.id);
 
       if (error) throw error;
-      
+
       toast({
         title: "Berhasil",
         description: "Catatan disimpan",
       });
+
       setSelectedInquiry(null);
       fetchInquiries();
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast({
         title: "Error",
-        description: error.message || "Gagal menyimpan catatan",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Gagal menyimpan catatan",
         variant: "destructive",
       });
     } finally {
@@ -135,26 +163,39 @@ const AdminInquiries = () => {
     }
   };
 
+  /* ================= HELPERS ================= */
+
   const openWhatsApp = (phone: string, name: string) => {
     const cleanPhone = phone.replace(/\D/g, "");
-    const formattedPhone = cleanPhone.startsWith("0") 
-      ? "62" + cleanPhone.slice(1) 
+    const formattedPhone = cleanPhone.startsWith("0")
+      ? `62${cleanPhone.slice(1)}`
       : cleanPhone;
-    const message = encodeURIComponent(`Halo ${name}, terima kasih telah menghubungi kami.`);
-    window.open(`https://wa.me/${formattedPhone}?text=${message}`, "_blank");
+
+    const message = encodeURIComponent(
+      `Halo ${name}, terima kasih telah menghubungi kami.`
+    );
+
+    window.open(
+      `https://wa.me/${formattedPhone}?text=${message}`,
+      "_blank"
+    );
   };
 
   const filteredInquiries = inquiries.filter((i) => {
-    const matchesSearch = 
+    const matchesSearch =
       i.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       i.phone.includes(searchQuery) ||
-      (i.email?.toLowerCase().includes(searchQuery.toLowerCase()));
-    
+      i.email?.toLowerCase().includes(searchQuery.toLowerCase());
+
     if (statusFilter === "all") return matchesSearch;
     return matchesSearch && i.status === statusFilter;
   });
 
-  const pendingCount = inquiries.filter((i) => i.status === "pending").length;
+  const pendingCount = inquiries.filter(
+    (i) => i.status === "pending"
+  ).length;
+
+  /* ================= RENDER ================= */
 
   return (
     <AdminLayout>
@@ -178,6 +219,7 @@ const AdminInquiries = () => {
                   className="pl-9"
                 />
               </div>
+
               <div className="flex items-center gap-2">
                 <Button
                   variant={statusFilter === "all" ? "default" : "outline"}
@@ -196,10 +238,11 @@ const AdminInquiries = () => {
               </div>
             </div>
           </CardHeader>
+
           <CardContent>
             {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              <div className="flex justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin" />
               </div>
             ) : filteredInquiries.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
@@ -210,17 +253,22 @@ const AdminInquiries = () => {
                 {filteredInquiries.map((inquiry) => (
                   <div
                     key={inquiry.id}
-                    className="p-4 border border-border rounded-lg space-y-3"
+                    className="p-4 border rounded-lg space-y-3"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-1">
+                    <div className="flex justify-between">
+                      <div>
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{inquiry.name}</span>
-                          <Badge className={statusColors[inquiry.status || "pending"]}>
-                            {statusLabels[inquiry.status || "pending"]}
+                          <Badge
+                            className={
+                              statusColors[inquiry.status ?? "pending"]
+                            }
+                          >
+                            {statusLabels[inquiry.status ?? "pending"]}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground">
+
+                        <div className="text-sm text-muted-foreground flex gap-4 mt-1">
                           <span className="flex items-center gap-1">
                             <Phone className="w-3 h-3" />
                             {inquiry.phone}
@@ -233,14 +281,9 @@ const AdminInquiries = () => {
                           )}
                         </div>
                       </div>
+
                       <span className="text-xs text-muted-foreground">
-                        {new Date(inquiry.created_at).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {new Date(inquiry.created_at).toLocaleString("id-ID")}
                       </span>
                     </div>
 
@@ -249,7 +292,7 @@ const AdminInquiries = () => {
                         Produk: {inquiry.product_name}
                       </p>
                     )}
-                    
+
                     <p className="text-sm text-muted-foreground">
                       <MessageSquare className="w-3 h-3 inline mr-1" />
                       {inquiry.message}
@@ -261,38 +304,44 @@ const AdminInquiries = () => {
                       </p>
                     )}
 
-                    <div className="flex items-center justify-between pt-2 border-t border-border">
-                      <div className="flex items-center gap-2">
-                        <Select
-                          value={inquiry.status || "pending"}
-                          onValueChange={(value) => handleStatusChange(inquiry.id, value)}
-                        >
-                          <SelectTrigger className="w-40 h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pending">Pending</SelectItem>
-                            <SelectItem value="contacted">Sudah Dihubungi</SelectItem>
-                            <SelectItem value="completed">Selesai</SelectItem>
-                            <SelectItem value="cancelled">Dibatalkan</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="flex items-center gap-2">
+                    <div className="flex justify-between pt-2 border-t">
+                      <Select
+                        value={inquiry.status ?? "pending"}
+                        onValueChange={(v) =>
+                          handleStatusChange(inquiry.id, v)
+                        }
+                      >
+                        <SelectTrigger className="w-40 h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="contacted">
+                            Sudah Dihubungi
+                          </SelectItem>
+                          <SelectItem value="completed">Selesai</SelectItem>
+                          <SelectItem value="cancelled">
+                            Dibatalkan
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+
+                      <div className="flex gap-2">
                         <Button
-                          variant="outline"
                           size="sm"
+                          variant="outline"
                           onClick={() => {
                             setSelectedInquiry(inquiry);
-                            setNotes(inquiry.notes || "");
+                            setNotes(inquiry.notes ?? "");
                           }}
                         >
                           Catatan
                         </Button>
                         <Button
-                          variant="default"
                           size="sm"
-                          onClick={() => openWhatsApp(inquiry.phone, inquiry.name)}
+                          onClick={() =>
+                            openWhatsApp(inquiry.phone, inquiry.name)
+                          }
                         >
                           <ExternalLink className="w-3 h-3 mr-1" />
                           WhatsApp
@@ -306,34 +355,34 @@ const AdminInquiries = () => {
           </CardContent>
         </Card>
 
-        {/* Notes Dialog */}
-        <Dialog open={!!selectedInquiry} onOpenChange={() => setSelectedInquiry(null)}>
+        <Dialog
+          open={!!selectedInquiry}
+          onOpenChange={() => setSelectedInquiry(null)}
+        >
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Catatan untuk {selectedInquiry?.name}</DialogTitle>
+              <DialogTitle>
+                Catatan untuk {selectedInquiry?.name}
+              </DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <Textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Tulis catatan di sini..."
-                rows={4}
-              />
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setSelectedInquiry(null)}>
-                  Batal
-                </Button>
-                <Button onClick={handleSaveNotes} disabled={isSaving}>
-                  {isSaving ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Menyimpan...
-                    </>
-                  ) : (
-                    "Simpan"
-                  )}
-                </Button>
-              </div>
+
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={4}
+              placeholder="Tulis catatan..."
+            />
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setSelectedInquiry(null)}
+              >
+                Batal
+              </Button>
+              <Button onClick={handleSaveNotes} disabled={isSaving}>
+                {isSaving ? "Menyimpan..." : "Simpan"}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

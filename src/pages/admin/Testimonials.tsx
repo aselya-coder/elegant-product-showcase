@@ -1,18 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Check, X, Trash2, Search, Loader2, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 
@@ -34,9 +26,9 @@ const AdminTestimonials = () => {
   const [filter, setFilter] = useState<"all" | "pending" | "approved">("all");
   const { toast } = useToast();
 
-  const fetchTestimonials = async () => {
+  const fetchTestimonials = useCallback(async () => {
     try {
-      let query = supabase
+      const query = supabase
         .from("testimonials")
         .select("*")
         .order("created_at", { ascending: false });
@@ -44,22 +36,24 @@ const AdminTestimonials = () => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setTestimonials(data || []);
-    } catch (error) {
-      console.error("Error fetching testimonials:", error);
+      setTestimonials(data ?? []);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Gagal memuat data testimoni";
+
       toast({
         title: "Error",
-        description: "Gagal memuat data testimoni",
+        description: message,
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchTestimonials();
-  }, []);
+  }, [fetchTestimonials]);
 
   const handleApprove = async (id: string, approve: boolean) => {
     try {
@@ -69,16 +63,22 @@ const AdminTestimonials = () => {
         .eq("id", id);
 
       if (error) throw error;
-      
+
       toast({
         title: "Berhasil",
-        description: approve ? "Testimoni disetujui" : "Testimoni ditolak",
+        description: approve
+          ? "Testimoni disetujui"
+          : "Testimoni dibatalkan",
       });
+
       fetchTestimonials();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Gagal mengupdate testimoni";
+
       toast({
         title: "Error",
-        description: error.message || "Gagal mengupdate testimoni",
+        description: message,
         variant: "destructive",
       });
     }
@@ -88,24 +88,36 @@ const AdminTestimonials = () => {
     if (!confirm("Yakin ingin menghapus testimoni ini?")) return;
 
     try {
-      const { error } = await supabase.from("testimonials").delete().eq("id", id);
+      const { error } = await supabase
+        .from("testimonials")
+        .delete()
+        .eq("id", id);
+
       if (error) throw error;
-      toast({ title: "Berhasil", description: "Testimoni berhasil dihapus" });
+
+      toast({
+        title: "Berhasil",
+        description: "Testimoni berhasil dihapus",
+      });
+
       fetchTestimonials();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Gagal menghapus testimoni";
+
       toast({
         title: "Error",
-        description: error.message || "Gagal menghapus testimoni",
+        description: message,
         variant: "destructive",
       });
     }
   };
 
   const filteredTestimonials = testimonials.filter((t) => {
-    const matchesSearch = 
+    const matchesSearch =
       t.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.content.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     if (filter === "pending") return matchesSearch && !t.is_approved;
     if (filter === "approved") return matchesSearch && t.is_approved;
     return matchesSearch;
@@ -113,20 +125,20 @@ const AdminTestimonials = () => {
 
   const pendingCount = testimonials.filter((t) => !t.is_approved).length;
 
-  const renderStars = (rating: number) => {
-    return (
-      <div className="flex items-center gap-0.5">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={`w-3 h-3 ${
-              star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-            }`}
-          />
-        ))}
-      </div>
-    );
-  };
+  const renderStars = (rating: number) => (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <Star
+          key={star}
+          className={`w-3 h-3 ${
+            star <= rating
+              ? "fill-yellow-400 text-yellow-400"
+              : "text-gray-300"
+          }`}
+        />
+      ))}
+    </div>
+  );
 
   return (
     <AdminLayout>
@@ -175,10 +187,11 @@ const AdminTestimonials = () => {
               </div>
             </div>
           </CardHeader>
+
           <CardContent>
             {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              <div className="flex justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin" />
               </div>
             ) : filteredTestimonials.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
@@ -186,77 +199,42 @@ const AdminTestimonials = () => {
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredTestimonials.map((testimonial) => (
+                {filteredTestimonials.map((t) => (
                   <div
-                    key={testimonial.id}
+                    key={t.id}
                     className="p-4 border border-border rounded-lg space-y-3"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{testimonial.name}</span>
-                          {testimonial.role && (
-                            <span className="text-sm text-muted-foreground">
-                              ({testimonial.role})
-                            </span>
-                          )}
-                        </div>
-                        {renderStars(testimonial.rating)}
+                    <div className="flex justify-between">
+                      <div>
+                        <p className="font-medium">{t.name}</p>
+                        {renderStars(t.rating)}
                       </div>
-                      <Badge variant={testimonial.is_approved ? "default" : "secondary"}>
-                        {testimonial.is_approved ? "Disetujui" : "Pending"}
+                      <Badge variant={t.is_approved ? "default" : "secondary"}>
+                        {t.is_approved ? "Disetujui" : "Pending"}
                       </Badge>
                     </div>
-                    
-                    <p className="text-sm text-muted-foreground">
-                      {testimonial.content}
-                    </p>
 
-                    {testimonial.product && (
-                      <p className="text-xs text-primary">
-                        Produk: {testimonial.product}
-                      </p>
-                    )}
+                    <p className="text-sm text-muted-foreground">{t.content}</p>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-border">
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(testimonial.created_at).toLocaleDateString("id-ID", {
-                          day: "numeric",
-                          month: "long",
-                          year: "numeric",
-                        })}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        {!testimonial.is_approved && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleApprove(testimonial.id, true)}
-                            className="text-green-600 hover:text-green-700"
-                          >
-                            <Check className="w-4 h-4 mr-1" />
-                            Setujui
-                          </Button>
-                        )}
-                        {testimonial.is_approved && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleApprove(testimonial.id, false)}
-                          >
-                            <X className="w-4 h-4 mr-1" />
-                            Batalkan
-                          </Button>
-                        )}
+                    <div className="flex justify-end gap-2">
+                      {!t.is_approved && (
                         <Button
-                          variant="ghost"
                           size="sm"
-                          onClick={() => handleDelete(testimonial.id)}
-                          className="text-destructive hover:text-destructive"
+                          variant="outline"
+                          onClick={() => handleApprove(t.id, true)}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Check className="w-4 h-4 mr-1" />
+                          Setujui
                         </Button>
-                      </div>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDelete(t.id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 ))}

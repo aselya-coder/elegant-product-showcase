@@ -3,18 +3,17 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";
-
-const navigation = [
-  { name: "Beranda", href: "/" },
-  { name: "Tentang Kami", href: "/tentang-kami" },
-  { name: "Katalog", href: "/katalog" },
-  { name: "Testimoni", href: "/testimoni" },
-  { name: "Kontak", href: "/kontak" },
-];
+import { useNavigation } from "@/hooks/useNavigation";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { data: navigation = [] } = useNavigation();
+  
+  // Filter visible items and sort by order
+  const displayNavigation = navigation
+    .filter(item => item.visible)
+    .sort((a, b) => a.order - b.order);
 
   const isActive = (href: string) => {
     if (href === "/") return location.pathname === "/";
@@ -34,7 +33,7 @@ const Header = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center gap-8">
-            {navigation.map((item) => (
+            {displayNavigation.map((item) => (
               <Link
                 key={item.name}
                 to={item.href}
@@ -85,7 +84,7 @@ const Header = () => {
         {mobileMenuOpen && (
           <div className="lg:hidden py-4 border-t border-border animate-fade-in-up">
             <div className="flex flex-col gap-4">
-              {navigation.map((item) => (
+              {displayNavigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}

@@ -1,17 +1,17 @@
-import { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2, Search, X, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Plus, Pencil, Trash2, Search, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 import {
   Dialog,
@@ -19,10 +19,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+
+/* ================= TYPES ================= */
 
 interface Product {
   id: string;
@@ -31,64 +34,90 @@ interface Product {
   description: string | null;
   price: number;
   category: string;
-  image_url: string | null;
-  is_featured: boolean | null;
-  is_active: boolean | null;
+  image: string | null;
+  is_featured: boolean;
+  is_active: boolean;
   created_at: string;
 }
 
-const initialFormData = {
+interface ProductForm {
+  name: string;
+  slug: string;
+  description: string;
+  price: number;
+  category: string;
+  image: string;
+  is_featured: boolean;
+  is_active: boolean;
+}
+
+const initialFormData: ProductForm = {
   name: "",
   slug: "",
   description: "",
   price: 0,
   category: "",
-  image_url: "",
+  image: "",
   is_featured: false,
   is_active: true,
 };
 
-const AdminProducts = () => {
+export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [formData, setFormData] = useState(initialFormData);
+  const [formData, setFormData] = useState<ProductForm>(initialFormData);
+
   const { toast } = useToast();
-
-  const fetchProducts = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-      setProducts(data || []);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      toast({
-        title: "Error",
-        description: "Gagal memuat data produk",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const toastRef = useRef(toast);
 
   useEffect(() => {
-    fetchProducts();
+    toastRef.current = toast;
+  }, [toast]);
+
+  /* ================= HELPERS ================= */
+
+  const generateSlug = (name: string) =>
+    name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      minimumFractionDigits: 0,
+    }).format(price);
+
+  /* ================= FETCH DATA ================= */
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        setProducts(data ?? []);
+      } catch (err) {
+        console.error(err);
+        toastRef.current({
+          title: "Error",
+          description: "Gagal memuat produk",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    load();
   }, []);
 
-  const generateSlug = (name: string) => {
-    return name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-  };
+  /* ================= HANDLERS ================= */
 
   const handleOpenDialog = (product?: Product) => {
     if (product) {
@@ -96,12 +125,12 @@ const AdminProducts = () => {
       setFormData({
         name: product.name,
         slug: product.slug,
-        description: product.description || "",
+        description: product.description ?? "",
         price: product.price,
         category: product.category,
-        image_url: product.image_url || "",
-        is_featured: product.is_featured || false,
-        is_active: product.is_active !== false,
+        image: product.image ?? "",
+        is_featured: product.is_featured,
+        is_active: product.is_active,
       });
     } else {
       setEditingProduct(null);
@@ -112,50 +141,51 @@ const AdminProducts = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.name.trim() || !formData.category.trim()) {
-      toast({
-        title: "Error",
-        description: "Nama dan kategori harus diisi",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
 
-    try {
-      const productData = {
-        name: formData.name.trim(),
-        slug: formData.slug.trim() || generateSlug(formData.name),
-        description: formData.description.trim() || null,
-        price: formData.price,
-        category: formData.category.trim(),
-        image_url: formData.image_url.trim() || null,
-        is_featured: formData.is_featured,
-        is_active: formData.is_active,
-      };
+    const payload = {
+      name: formData.name,
+      slug: formData.slug || generateSlug(formData.name),
+      description: formData.description || null,
+      price: formData.price,
+      category: formData.category,
+      image: formData.image || null,
+      is_featured: formData.is_featured,
+      is_active: formData.is_active,
+    };
 
+    try {
       if (editingProduct) {
         const { error } = await supabase
           .from("products")
-          .update(productData)
+          .update(payload)
           .eq("id", editingProduct.id);
 
         if (error) throw error;
-        toast({ title: "Berhasil", description: "Produk berhasil diperbarui" });
+
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.id === editingProduct.id ? { ...p, ...payload } : p
+          )
+        );
       } else {
-        const { error } = await supabase.from("products").insert(productData);
+        const { data, error } = await supabase
+          .from("products")
+          .insert(payload)
+          .select()
+          .single();
+
         if (error) throw error;
-        toast({ title: "Berhasil", description: "Produk berhasil ditambahkan" });
+        if (data) setProducts((prev) => [data, ...prev]);
       }
 
+      toast({ title: "Berhasil", description: "Produk disimpan" });
       setIsDialogOpen(false);
-      fetchProducts();
-    } catch (error: any) {
+    } catch (err) {
+      console.error(err);
       toast({
         title: "Error",
-        description: error.message || "Gagal menyimpan produk",
+        description: "Gagal menyimpan produk",
         variant: "destructive",
       });
     } finally {
@@ -169,38 +199,34 @@ const AdminProducts = () => {
     try {
       const { error } = await supabase.from("products").delete().eq("id", id);
       if (error) throw error;
-      toast({ title: "Berhasil", description: "Produk berhasil dihapus" });
-      fetchProducts();
-    } catch (error: any) {
+
+      setProducts((prev) => prev.filter((p) => p.id !== id));
+      toast({ title: "Berhasil", description: "Produk dihapus" });
+    } catch (err) {
+      console.error(err);
       toast({
         title: "Error",
-        description: error.message || "Gagal menghapus produk",
+        description: "Gagal menghapus produk",
         variant: "destructive",
       });
     }
   };
 
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.category.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProducts = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      p.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const formatPrice = (price: number) =>
-    new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(price);
+  /* ================= RENDER ================= */
 
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold">Produk</h1>
-            <p className="text-muted-foreground mt-1">
-              Kelola katalog produk Anda
-            </p>
+            <p className="text-muted-foreground">Kelola katalog produk</p>
           </div>
           <Button onClick={() => handleOpenDialog()}>
             <Plus className="w-4 h-4 mr-2" />
@@ -213,179 +239,145 @@ const AdminProducts = () => {
             <div className="relative max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
+                className="pl-9"
                 placeholder="Cari produk..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
               />
             </div>
           </CardHeader>
+
           <CardContent>
             {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : filteredProducts.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                {searchQuery ? "Tidak ada produk yang ditemukan" : "Belum ada produk"}
+              <div className="flex justify-center py-10">
+                <Loader2 className="w-6 h-6 animate-spin" />
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Nama</TableHead>
-                      <TableHead>Kategori</TableHead>
-                      <TableHead>Harga</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead className="text-right">Aksi</TableHead>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nama</TableHead>
+                    <TableHead>Kategori</TableHead>
+                    <TableHead>Harga</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Aksi</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredProducts.map((product) => (
+                    <TableRow key={product.id}>
+                      <TableCell className="font-medium">
+                        {product.name}
+                      </TableCell>
+                      <TableCell>{product.category}</TableCell>
+                      <TableCell>{formatPrice(product.price)}</TableCell>
+                      <TableCell>
+                        {product.is_active ? "Aktif" : "Nonaktif"}
+                      </TableCell>
+                      <TableCell className="text-right space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleOpenDialog(product)}
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(product.id)}
+                        >
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </TableCell>
                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredProducts.map((product) => (
-                      <TableRow key={product.id}>
-                        <TableCell className="font-medium">
-                          <div className="flex items-center gap-3">
-                            {product.image_url && (
-                              <img
-                                src={product.image_url}
-                                alt={product.name}
-                                className="w-10 h-10 rounded object-cover"
-                              />
-                            )}
-                            <div>
-                              <p>{product.name}</p>
-                              {product.is_featured && (
-                                <span className="text-xs text-primary">Featured</span>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{product.category}</TableCell>
-                        <TableCell>{formatPrice(product.price)}</TableCell>
-                        <TableCell>
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              product.is_active
-                                ? "bg-green-100 text-green-700"
-                                : "bg-gray-100 text-gray-600"
-                            }`}
-                          >
-                            {product.is_active ? "Aktif" : "Nonaktif"}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleOpenDialog(product)}
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleDelete(product.id)}
-                              className="text-destructive hover:text-destructive"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                  ))}
+                </TableBody>
+              </Table>
             )}
           </CardContent>
         </Card>
 
-        {/* Product Form Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {editingProduct ? "Edit Produk" : "Tambah Produk Baru"}
+                {editingProduct ? "Edit Produk" : "Tambah Produk"}
               </DialogTitle>
+              <DialogDescription>
+                Form untuk menambah atau mengubah produk
+              </DialogDescription>
             </DialogHeader>
+
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Nama Produk *</label>
-                <Input
-                  value={formData.name}
-                  onChange={(e) => {
-                    setFormData({
-                      ...formData,
-                      name: e.target.value,
-                      slug: generateSlug(e.target.value),
-                    });
-                  }}
-                  placeholder="Nama produk"
-                />
-              </div>
+              <Input
+                placeholder="Nama Produk"
+                value={formData.name}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    name: e.target.value,
+                    slug: generateSlug(e.target.value),
+                  })
+                }
+              />
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Slug</label>
-                <Input
-                  value={formData.slug}
-                  onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                  placeholder="slug-produk"
-                />
-              </div>
+              <Input
+                placeholder="Kategori"
+                value={formData.category}
+                onChange={(e) =>
+                  setFormData({ ...formData, category: e.target.value })
+                }
+              />
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Kategori *</label>
-                <Input
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  placeholder="Kategori produk"
-                />
-              </div>
+              <Input
+                type="number"
+                placeholder="Harga"
+                value={formData.price}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    price: Number(e.target.value),
+                  })
+                }
+              />
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Harga</label>
-                <Input
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
-                  placeholder="0"
-                />
-              </div>
+              <Input
+                placeholder="URL Gambar (opsional)"
+                value={formData.image}
+                onChange={(e) =>
+                  setFormData({ ...formData, image: e.target.value })
+                }
+              />
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Deskripsi</label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Deskripsi produk"
-                  rows={3}
-                />
-              </div>
+              <Textarea
+                placeholder="Deskripsi"
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    description: e.target.value,
+                  })
+                }
+              />
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">URL Gambar</label>
-                <Input
-                  value={formData.image_url}
-                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                  placeholder="https://..."
-                />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Featured</label>
+              <div className="flex justify-between items-center">
+                <span>Featured</span>
                 <Switch
                   checked={formData.is_featured}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_featured: checked })}
+                  onCheckedChange={(v) =>
+                    setFormData({ ...formData, is_featured: v })
+                  }
                 />
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Aktif</label>
+              <div className="flex justify-between items-center">
+                <span>Aktif</span>
                 <Switch
                   checked={formData.is_active}
-                  onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                  onCheckedChange={(v) =>
+                    setFormData({ ...formData, is_active: v })
+                  }
                 />
               </div>
 
@@ -398,14 +390,7 @@ const AdminProducts = () => {
                   Batal
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Menyimpan...
-                    </>
-                  ) : (
-                    "Simpan"
-                  )}
+                  {isSubmitting ? "Menyimpan..." : "Simpan"}
                 </Button>
               </DialogFooter>
             </form>
@@ -414,6 +399,4 @@ const AdminProducts = () => {
       </div>
     </AdminLayout>
   );
-};
-
-export default AdminProducts;
+}

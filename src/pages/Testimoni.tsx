@@ -1,10 +1,12 @@
 import { Star, Quote } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { testimonials } from "@/data/testimonials";
 import { getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";
+import { useTestimonials } from "@/hooks/useTestimonials";
 
 const Testimoni = () => {
+  const { data: testimonials = [], isLoading } = useTestimonials();
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -28,54 +30,64 @@ const Testimoni = () => {
       {/* Testimonials Grid */}
       <section className="section-padding bg-background">
         <div className="container-custom">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {testimonials.map((testimonial) => (
-              <div
-                key={testimonial.id}
-                className="bg-card p-8 rounded-xl shadow-soft hover:shadow-card transition-shadow duration-300 relative"
-              >
-                {/* Quote Icon */}
-                <Quote className="w-10 h-10 text-primary/20 absolute top-6 right-6" />
+          {isLoading ? (
+            <div className="text-center py-16">
+              <p className="text-muted-foreground">Memuat testimoni...</p>
+            </div>
+          ) : testimonials.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="text-muted-foreground">Belum ada testimoni</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {testimonials.map((testimonial) => (
+                <div
+                  key={testimonial.id}
+                  className="bg-card p-8 rounded-xl shadow-soft hover:shadow-card transition-shadow duration-300 relative"
+                >
+                  {/* Quote Icon */}
+                  <Quote className="w-10 h-10 text-primary/20 absolute top-6 right-6" />
 
-                {/* Rating */}
-                <div className="flex gap-1 mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-4 h-4 fill-primary text-primary"
-                    />
-                  ))}
+                  {/* Rating */}
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className="w-4 h-4 fill-primary text-primary"
+                      />
+                    ))}
+                  </div>
+
+                  {/* Content */}
+                  <p className="text-foreground/80 leading-relaxed mb-6 italic relative z-10">
+                    "{testimonial.content}"
+                  </p>
+
+                  {/* Author */}
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <span className="font-heading text-lg font-medium text-primary">
+                        {testimonial.name.charAt(0)}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">{testimonial.name}</p>
+                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                    </div>
+                  </div>
+
+                  {/* Product Badge */}
+                  {testimonial.product && (
+                    <div className="mt-4 pt-4 border-t border-border">
+                      <p className="text-xs text-muted-foreground">
+                        Produk: <span className="text-primary">{testimonial.product}</span>
+                      </p>
+                    </div>
+                  )}
                 </div>
-
-                {/* Content */}
-                <p className="text-foreground/80 leading-relaxed mb-6 italic relative z-10">
-                  "{testimonial.content}"
-                </p>
-
-                {/* Author */}
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="font-heading text-lg font-medium text-primary">
-                      {testimonial.name.charAt(0)}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-foreground">{testimonial.name}</p>
-                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                  </div>
-                </div>
-
-                {/* Product Badge */}
-                {testimonial.product && (
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <p className="text-xs text-muted-foreground">
-                      Produk: <span className="text-primary">{testimonial.product}</span>
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

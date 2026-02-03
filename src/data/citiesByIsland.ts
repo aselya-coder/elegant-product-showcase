@@ -119,7 +119,7 @@ export const citiesByIsland = {
       "Mamuju",
     ],
   
-    bali_nusra: [
+    bali: [
       "Denpasar",
       "Badung",
       "Gianyar",

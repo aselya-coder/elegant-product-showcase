@@ -33,6 +33,8 @@ export interface Product {
   exclusive: boolean;
   premium: boolean;
   productUrl: string;
+  isActive?: boolean;
+  sortOrder?: number;
 }
 
 export const categories = [
@@ -60,7 +62,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: true,
-    productUrl: "https://bloomgift.com/produk/buket-mawar-merah-premium",
+    productUrl: "/produk/buket-mawar-merah-premium",
   },
   {
     id: "2",
@@ -76,7 +78,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: true,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/hampers-lebaran-eksklusif",
+    productUrl: "/produk/hampers-lebaran-eksklusif",
   },
   {
     id: "3",
@@ -91,7 +93,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/kue-ulang-tahun-custom",
+    productUrl: "/produk/kue-ulang-tahun-custom",
   },
   {
     id: "4",
@@ -106,7 +108,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/buket-bunga-matahari",
+    productUrl: "/produk/buket-bunga-matahari",
   },
   {
     id: "5",
@@ -121,7 +123,7 @@ export const products: Product[] = [
     bestSeller: true,
     exclusive: false,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/hampers-bayi-newborn",
+    productUrl: "/produk/hampers-bayi-newborn",
   },
   {
     id: "6",
@@ -137,7 +139,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/dekorasi-lamaran-romantis", 
+    productUrl: "/produk/dekorasi-lamaran-romantis", 
   },
   {
     id: "7",
@@ -152,7 +154,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: true,
-    productUrl: "https://bloomgift.com/produk/buket-lily-putih-elegan",
+    productUrl: "/produk/buket-lily-putih-elegan",
   },
   {
     id: "8",
@@ -167,7 +169,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: true,
-    productUrl: "https://bloomgift.com/produk/kue-pengantin-3-tier",
+    productUrl: "/produk/kue-pengantin-3-tier",
   },
   {
     id: "9",
@@ -182,7 +184,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/papan-duka-cita-simpati",
+    productUrl: "/produk/papan-duka-cita-simpati",
   },
   {
     id: "10",
@@ -197,7 +199,7 @@ export const products: Product[] = [
     bestSeller: true,
     exclusive: false,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/parsel-natal-elegan",
+    productUrl: "/produk/parsel-natal-elegan",
   },
   {
     id: "11",
@@ -212,7 +214,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: true,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/paket-natal-ekslusif",
+    productUrl: "/produk/paket-natal-ekslusif",
   },
   {
     id: "12",
@@ -227,7 +229,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/paket-natal-special",
+    productUrl: "/produk/paket-natal-special",
   },
   {
     id: "13",
@@ -242,7 +244,7 @@ export const products: Product[] = [
     bestSeller: true,
     exclusive: false,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/dekorasi-lamaran-simple-elegant",
+    productUrl: "/produk/dekorasi-lamaran-simple-elegant",
   },
   {
     id: "14",
@@ -257,7 +259,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: true,
-    productUrl: "https://bloomgift.com/produk/dekorasi-lamaran-elegant",
+    productUrl: "/produk/dekorasi-lamaran-elegant",
   },
   {
     id: "15",
@@ -272,7 +274,7 @@ export const products: Product[] = [
     bestSeller: true,
     exclusive: false,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/papan-bunga-akrilik-modern",
+    productUrl: "/produk/papan-bunga-akrilik-modern",
   },
   {
     id: "16",
@@ -287,7 +289,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/papan-bunga-happy-wedding-bal",
+    productUrl: "/produk/papan-bunga-happy-wedding-bal",
   },
   {
     id: "17",
@@ -302,7 +304,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/papan-duka-cita-simpati",
+    productUrl: "/produk/papan-duka-cita-simpati",
   },
   {
     id: "18",
@@ -317,7 +319,7 @@ export const products: Product[] = [
     bestSeller: true,
     exclusive: false,
     premium: false,
-    productUrl: "https://bloomgift.com/produk/bento-cake-unik",
+    productUrl: "/produk/bento-cake-unik",
   },
   {
     id: "19",
@@ -332,7 +334,7 @@ export const products: Product[] = [
     bestSeller: true,
     exclusive: false,
     premium: true,
-    productUrl: "https://bloomgift.com/produk/hampers-lebaran",
+    productUrl: "/produk/hampers-lebaran",
   }
 ];
 
