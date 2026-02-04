@@ -7,13 +7,13 @@ import { Database } from "@/integrations/supabase/types";
 export type Product = Database["public"]["Tables"]["products"]["Row"] & {
   original_price?: number;
   short_description?: string;
-  featured?: boolean;
-  best_seller?: boolean;
-  exclusive?: boolean;
-  premium?: boolean;
   product_url?: string;
   images?: string[];
   sort_order?: number;
+  // Additional tags matching DB columns
+  is_best_seller?: boolean;
+  is_exclusive?: boolean;
+  is_premium?: boolean;
 };
 
 export const productsApi = {
@@ -21,8 +21,7 @@ export const productsApi = {
     const { data, error } = await supabase
       .from("products")
       .select("*")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: true });
 
     if (error) throw error;
     return data as Product[];
@@ -55,11 +54,15 @@ export const productsApi = {
       name: product.name!,
       slug: product.slug!,
       price: product.price ?? 0,
+      original_price: product.original_price,
       category: product.category!,
       description: product.description,
       image_url: product.image_url,
       is_active: product.is_active ?? true,
       is_featured: product.is_featured ?? false,
+      is_best_seller: product.is_best_seller ?? false,
+      is_exclusive: product.is_exclusive ?? false,
+      is_premium: product.is_premium ?? false,
     });
 
     if (error) throw error;
@@ -71,11 +74,15 @@ export const productsApi = {
       name: product.name!,
       slug: product.slug!,
       price: product.price ?? 0,
+      original_price: product.original_price,
       category: product.category!,
       description: product.description,
       image_url: product.image_url,
       is_active: product.is_active ?? true,
       is_featured: product.is_featured ?? false,
+      is_best_seller: product.is_best_seller ?? false,
+      is_exclusive: product.is_exclusive ?? false,
+      is_premium: product.is_premium ?? false,
     }, { onConflict: 'slug' });
 
     if (error) throw error;
@@ -89,11 +96,15 @@ export const productsApi = {
         name: updates.name,
         slug: updates.slug,
         price: updates.price,
+        original_price: updates.original_price,
         category: updates.category,
         description: updates.description,
         image_url: updates.image_url,
         is_active: updates.is_active,
         is_featured: updates.is_featured,
+        is_best_seller: updates.is_best_seller,
+        is_exclusive: updates.is_exclusive,
+        is_premium: updates.is_premium,
       })
       .eq("id", id);
 
@@ -119,7 +130,7 @@ export const testimonialsApi = {
       .from("testimonials")
       .select("*")
       .eq("is_approved", true)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: true });
 
     if (error) throw error;
     return data as Testimonial[];

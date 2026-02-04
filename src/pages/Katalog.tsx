@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, SlidersHorizontal, ArrowUpDown, X, MapPin } from "lucide-react";
+import { Search, SlidersHorizontal, ArrowUpDown, X, MapPin, Loader2 } from "lucide-react";
 
 import Layout from "@/components/layout/Layout";
 import ProductCard from "@/components/product/ProductCard";
-import { products, categories, getProductsByCategory } from "@/data/products";
+import { categories } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 import { citiesByIsland } from "@/data/citiesByIsland";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,8 @@ const ALL_CITIES = Object.values(citiesByIsland).flat();
 
 const Katalog = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { data: products = [], isLoading } = useProducts();
+  
   const [selectedCategory, setSelectedCategory] = useState(
     searchParams.get("kategori") || "all"
   );
@@ -57,18 +60,22 @@ const Katalog = () => {
 
   /* ===== FILTERED & SORTED PRODUCTS ===== */
   const filteredProducts = useMemo(() => {
-    let result = getProductsByCategory(selectedCategory);
+    // 1. Filter by Active Status
+    let result = products.filter((p) => p.is_active !== false);
 
-    // Filter by product name search
+    // 2. Filter by Category
+    if (selectedCategory !== "all") {
+      result = result.filter((p) => p.category === selectedCategory);
+    }
+
+    // 3. Filter by Product Name
     if (productQuery.trim()) {
       result = result.filter((p) =>
         p.name.toLowerCase().includes(productQuery.toLowerCase())
       );
     }
 
-    
-
-    // Sort by price
+    // 4. Sort by Price
     if (sortOrder === "asc") {
       result = [...result].sort((a, b) => a.price - b.price);
     } else if (sortOrder === "desc") {
@@ -76,7 +83,7 @@ const Katalog = () => {
     }
 
     return result;
-  }, [selectedCategory, productQuery, sortOrder]);
+  }, [products, selectedCategory, productQuery, sortOrder]);
 
   const resetFilters = () => {
     setProductQuery("");
@@ -326,7 +333,11 @@ const Katalog = () => {
           </div>
 
           {/* PRODUCTS */}
-          {filteredProducts.length > 0 ? (
+          {isLoading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 className="w-10 h-10 animate-spin text-primary" />
+            </div>
+          ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
@@ -344,9 +355,11 @@ const Katalog = () => {
           )}
 
           {/* COUNT */}
-          <p className="text-center mt-12 text-muted-foreground">
-            Menampilkan {filteredProducts.length} dari {products.length} produk
-          </p>
+          {!isLoading && (
+            <p className="text-center mt-12 text-muted-foreground">
+              Menampilkan {filteredProducts.length} dari {products.filter(p => p.is_active !== false).length} produk
+            </p>
+          )}
         </div>
       </section>
     </Layout>

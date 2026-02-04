@@ -23,10 +23,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const images = 'images' in product && product.images ? product.images : ['image_url' in product ? product.image_url : ''];
   const imageUrl = images[0] || '/placeholder.svg';
   const shortDescription = 'shortDescription' in product ? product.shortDescription : product.description?.substring(0, 100);
+  
+  // Robust check for prices
   const originalPrice = 'originalPrice' in product ? product.originalPrice : ('original_price' in product ? product.original_price : undefined);
-  const bestSeller = 'bestSeller' in product ? product.bestSeller : ('best_seller' in product ? product.best_seller : false);
-  const exclusive = 'exclusive' in product ? product.exclusive : false;
-  const premium = 'premium' in product ? product.premium : false;
+  
+  // Robust check for tags (handle both camelCase from local data and snake_case from API)
+  // We use type assertion to any to safely check all possible property names
+  const p = product as any;
+  const isBestSeller = p.bestSeller || p.is_best_seller || p.best_seller || false;
+  const isExclusive = p.exclusive || p.is_exclusive || false;
+  const isPremium = p.premium || p.is_premium || false;
+
   const productUrl = 'productUrl' in product ? product.productUrl : ('product_url' in product ? product.product_url : '');
   
   // Helper to clean slug if it contains a full URL (handling legacy data issues)
@@ -55,24 +62,24 @@ const ProductCard = ({ product }: ProductCardProps) => {
           />
         </div>
         {/* Badges */}
-        <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
-          {bestSeller && (
-            <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
+        <div className="absolute top-3 left-3 z-30 flex flex-col gap-2">
+          {isBestSeller && (
+            <span className="bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
               Best Seller
             </span>
           )}
           {originalPrice && (
-            <span className="bg-rose text-white text-xs font-medium px-3 py-1 rounded-full">
+            <span className="bg-red-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
               Sale
             </span>
           )}
-          {exclusive && (
-            <span className="bg-black text-white text-xs font-medium px-3 py-1 rounded-full">
+          {isExclusive && (
+            <span className="bg-purple-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
               Exclusive
             </span>
           )}
-          {premium && (
-            <span className="bg-yellow-900 text-white text-xs font-medium px-3 py-1 rounded-full">
+          {isPremium && (
+            <span className="bg-amber-600 text-white text-xs font-medium px-3 py-1 rounded-full shadow-sm">
               Premium
             </span>
           )}

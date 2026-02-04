@@ -41,7 +41,8 @@ import {
 } from "@/hooks/useProducts";
 import { Product, productsApi } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Upload, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Products = () => {
   const queryClient = useQueryClient();
@@ -56,16 +57,25 @@ const Products = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  
+  // File upload state
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     name: "",
     price: 0,
+    original_price: 0,
     description: "",
     category: "",
     slug: "",
     image_url: "",
     is_active: true,
     is_featured: false,
+    is_best_seller: false,
+    is_exclusive: false,
+    is_premium: false,
   });
 
   const ITEMS_PER_PAGE = 10;
@@ -87,32 +97,77 @@ const Products = () => {
   }, [filteredProducts, currentPage]);
 
   const handleOpenDialog = (product?: Product) => {
+    setSelectedFile(null);
     if (product) {
       setEditingProduct(product);
+      setImagePreview(product.image_url || null);
       setFormData({
         name: product.name,
         price: product.price,
+        original_price: product.original_price || 0,
         description: product.description || "",
         category: product.category,
         slug: product.slug,
         image_url: product.image_url || "",
         is_active: product.is_active ?? true,
         is_featured: product.is_featured ?? false,
+        is_best_seller: product.is_best_seller ?? false,
+        is_exclusive: product.is_exclusive ?? false,
+        is_premium: product.is_premium ?? false,
       });
     } else {
       setEditingProduct(null);
+      setImagePreview(null);
       setFormData({
         name: "",
         price: 0,
+        original_price: 0,
         description: "",
         category: "",
         slug: "",
         image_url: "",
         is_active: true,
         is_featured: false,
+        is_best_seller: false,
+        is_exclusive: false,
+        is_premium: false,
       });
     }
     setDialogOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setSelectedFile(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (file: File): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('products')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      throw uploadError;
+    }
+
+    const { data } = supabase.storage
+      .from('products')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
   };
 
   const handleSync = async () => {
@@ -128,11 +183,15 @@ const Products = () => {
           slug: p.slug,
           name: p.name,
           price: p.price,
+          original_price: p.originalPrice,
           category: p.category,
           description: p.description,
           image_url: p.images[0],
           is_active: p.isActive ?? true,
           is_featured: p.featured ?? false,
+          is_best_seller: p.bestSeller ?? false,
+          is_exclusive: p.exclusive ?? false,
+          is_premium: p.premium ?? false,
         });
         count++;
       }
@@ -153,10 +212,26 @@ const Products = () => {
     }
 
     try {
+      let imageUrl = formData.image_url;
+
+      // Handle Image Upload
+      if (selectedFile) {
+        setIsUploading(true);
+        try {
+          imageUrl = await uploadImage(selectedFile);
+        } catch (error) {
+          console.error("Upload failed:", error);
+          toast.error("Gagal mengupload gambar");
+          setIsUploading(false);
+          return;
+        }
+        setIsUploading(false);
+      }
+
       if (editingProduct) {
         await updateMutation.mutateAsync({
           id: editingProduct.id,
-          updates: formData,
+          updates: { ...formData, image_url: imageUrl },
         });
         toast.success("Produk berhasil diupdate");
       } else {
@@ -167,12 +242,14 @@ const Products = () => {
 
         await createMutation.mutateAsync({
           ...formData,
+          image_url: imageUrl,
           slug,
         });
         toast.success("Produk berhasil ditambahkan");
       }
       setDialogOpen(false);
     } catch (error) {
+      setIsUploading(false);
       toast.error("Terjadi kesalahan. Silakan coba lagi.");
       console.error("Error saving product:", error);
       if (typeof error === 'object' && error !== null) {
@@ -254,46 +331,88 @@ const Products = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nama Produk</TableHead>
-                <TableHead>Kategori</TableHead>
-                <TableHead>Harga</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Label</TableHead>
-                <TableHead className="text-right">Aksi</TableHead>
+                <TableHead className="w-[300px]">Nama Produk</TableHead>
+                <TableHead className="w-[150px]">Kategori</TableHead>
+                <TableHead className="w-[150px]">Harga</TableHead>
+                <TableHead className="w-[120px]">Status</TableHead>
+                <TableHead className="min-w-[200px]">Label</TableHead>
+                <TableHead className="text-right w-[100px]">Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedProducts.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                  <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
                     Tidak ada produk ditemukan
                   </TableCell>
                 </TableRow>
               ) : (
                 paginatedProducts.map((product) => (
                   <TableRow key={product.id}>
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell>{product.category}</TableCell>
-                    <TableCell>
-                      <p className="font-medium">
-                        Rp {product.price.toLocaleString("id-ID")}
-                      </p>
+                    <TableCell className="py-4">
+                      <div className="font-medium text-base">{product.name}</div>
+                      <div className="text-sm text-muted-foreground line-clamp-2 mt-1">
+                        {product.description}
+                      </div>
                     </TableCell>
-                    <TableCell>
-                      <Badge variant={product.is_active ? "default" : "secondary"}>
-                        {product.is_active ? "Aktif" : "Nonaktif"}
-                      </Badge>
+                    <TableCell className="py-4">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800">
+                        {categories.find((c) => c.id === product.category)?.name ||
+                          product.category}
+                      </span>
                     </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1">
-                        {product.is_featured && (
-                          <Badge variant="outline" className="text-xs">
-                            Unggulan
-                          </Badge>
+                    <TableCell className="py-4">
+                      <div className="flex flex-col gap-1">
+                        <span className="font-semibold text-base">
+                          Rp {product.price.toLocaleString("id-ID")}
+                        </span>
+                        {(product.original_price || 0) > 0 && (
+                          <span className="text-xs text-red-500 line-through">
+                            Rp {(product.original_price || 0).toLocaleString("id-ID")}
+                          </span>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="py-4">
+                      <div
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
+                          product.is_active
+                            ? "bg-green-50 text-green-700 border-green-200"
+                            : "bg-red-50 text-red-700 border-red-200"
+                        }`}
+                      >
+                        <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${product.is_active ? "bg-green-600" : "bg-red-600"}`}></span>
+                        {product.is_active ? "Aktif" : "Nonaktif"}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-4">
+                      <div className="flex flex-wrap gap-2">
+                        {product.is_featured && (
+                          <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100">
+                            Unggulan
+                          </Badge>
+                        )}
+                        {product.is_best_seller && (
+                          <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100">
+                            Best Seller
+                          </Badge>
+                        )}
+                        {product.is_exclusive && (
+                          <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100">
+                            Exclusive
+                          </Badge>
+                        )}
+                        {product.is_premium && (
+                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100">
+                            Premium
+                          </Badge>
+                        )}
+                        {!product.is_featured && !product.is_best_seller && !product.is_exclusive && !product.is_premium && (
+                          <span className="text-xs text-muted-foreground">-</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right py-4">
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="ghost"
@@ -390,16 +509,32 @@ const Products = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="slug">Slug (URL)</Label>
+                <Label htmlFor="original_price">Harga Coret (Opsional)</Label>
                 <Input
-                  id="slug"
-                  value={formData.slug}
+                  id="original_price"
+                  type="number"
+                  value={formData.original_price}
                   onChange={(e) =>
-                    setFormData({ ...formData, slug: e.target.value })
+                    setFormData({ ...formData, original_price: Number(e.target.value) })
                   }
-                  placeholder="buket-mawar-merah"
+                  placeholder="Isi jika ada diskon"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="slug">Slug (URL)</Label>
+              <Input
+                id="slug"
+                value={formData.slug}
+                onChange={(e) =>
+                  setFormData({ ...formData, slug: e.target.value })
+                }
+                placeholder="buket-mawar-merah"
+              />
+              <p className="text-xs text-muted-foreground">
+                Biarkan kosong untuk generate otomatis dari nama produk
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -422,15 +557,48 @@ const Products = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image_url">URL Gambar</Label>
-              <Input
-                id="image_url"
-                value={formData.image_url}
-                onChange={(e) =>
-                  setFormData({ ...formData, image_url: e.target.value })
-                }
-                placeholder="https://..."
-              />
+              <Label htmlFor="image_url">Gambar Produk</Label>
+              <div className="flex items-center gap-4">
+                <div className="relative w-24 h-24 border rounded-md overflow-hidden bg-muted flex items-center justify-center">
+                  {imagePreview ? (
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="text-muted-foreground text-xs text-center p-2">
+                      No Image
+                    </div>
+                  )}
+                  {isUploading && (
+                    <div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 space-y-2">
+                  <Input
+                    id="image_upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="cursor-pointer"
+                  />
+                  <div className="text-xs text-muted-foreground">
+                    Atau gunakan URL gambar eksternal:
+                  </div>
+                  <Input
+                    id="image_url"
+                    value={formData.image_url}
+                    onChange={(e) => {
+                      setFormData({ ...formData, image_url: e.target.value });
+                      setImagePreview(e.target.value);
+                    }}
+                    placeholder="https://example.com/image.jpg"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2">
@@ -465,6 +633,39 @@ const Products = () => {
                   checked={formData.is_featured}
                   onCheckedChange={(checked) =>
                     setFormData({ ...formData, is_featured: checked })
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="is_best_seller">Best Seller</Label>
+                <Switch
+                  id="is_best_seller"
+                  checked={formData.is_best_seller}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, is_best_seller: checked })
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="is_exclusive">Exclusive</Label>
+                <Switch
+                  id="is_exclusive"
+                  checked={formData.is_exclusive}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, is_exclusive: checked })
+                  }
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label htmlFor="is_premium">Premium</Label>
+                <Switch
+                  id="is_premium"
+                  checked={formData.is_premium}
+                  onCheckedChange={(checked) =>
+                    setFormData({ ...formData, is_premium: checked })
                   }
                 />
               </div>
