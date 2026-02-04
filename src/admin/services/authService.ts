@@ -50,20 +50,4 @@ export const authService = {
   logout: async (): Promise<void> => {
     await supabase.auth.signOut();
   },
-
-  getCurrentUser: (): AdminUser | null => {
-    const userStr = localStorage.getItem("admin_user");
-    if (userStr) {
-      try {
-        return JSON.parse(userStr);
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  },
-
-  isAuthenticated: (): boolean => {
-    return !!authService.getCurrentUser();
-  },
 };
