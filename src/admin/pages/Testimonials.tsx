@@ -138,8 +138,13 @@ const Testimonials = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.name || !formData.content) {
-      toast.error("Mohon lengkapi field yang wajib diisi");
+    // Validasi field wajib
+    if (!formData.name) {
+      toast.error("Nama pelanggan wajib diisi");
+      return;
+    }
+    if (!formData.content) {
+      toast.error("Isi testimoni wajib diisi");
       return;
     }
 

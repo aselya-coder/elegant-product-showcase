@@ -3,7 +3,7 @@ import { ArrowLeft, ShoppingBag, MessageCircle, Truck, Shield, RefreshCw } from 
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/product/ProductCard";
-import { getProductBySlug, products } from "@/data/products";
+import { useProductBySlug, useProducts } from "@/hooks/useProducts";
 import { getProductWhatsAppUrl, getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";
 
 const formatPrice = (price: number) => {
@@ -17,20 +17,38 @@ const formatPrice = (price: number) => {
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const product = slug ? getProductBySlug(slug) : undefined;
+  const { data: product, isLoading } = useProductBySlug(slug || "");
+  const { data: allProducts = [] } = useProducts();
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <p className="text-muted-foreground">Memuat produk...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!product) {
     return <Navigate to="/katalog" replace />;
   }
 
   // Get related products (same category, excluding current)
-  const relatedProducts = products
+  const relatedProducts = allProducts
     .filter((p) => p.category === product.category && p.id !== product.id)
     .slice(0, 4);
 
-  const discount = product.originalPrice
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+  const discount = (product.original_price || 0) > 0
+    ? Math.round((((product.original_price || 0) - product.price) / (product.original_price || 1)) * 100)
     : 0; 
+
+  const isBestSeller = product.is_best_seller;
+  const isExclusive = product.is_exclusive;
+  const isPremium = product.is_premium;
+
+  const images = product.images || (product.image_url ? [product.image_url] : []);
+  const mainImage = images[0] || '/placeholder.svg';
 
   return (
     <Layout>
@@ -68,7 +86,7 @@ const ProductDetail = () => {
             <div className="space-y-4">
               <div className="aspect-square rounded-2xl overflow-hidden bg-muted shadow-card">
                 <img
-                  src={product.images[0]}
+                  src={mainImage}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
@@ -89,7 +107,7 @@ const ProductDetail = () => {
 
               {/* Badges */}
               <div className="flex flex-wrap gap-2">
-                {product.bestSeller && (
+                {isBestSeller && (
                   <span className="bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
                     Best Seller
                   </span>
@@ -99,12 +117,12 @@ const ProductDetail = () => {
                     Hemat {discount}%
                   </span>
                 )}
-                {product.exclusive && (
+                {isExclusive && (
                   <span className="bg-black text-white text-xs font-medium px-3 py-1 rounded-full">
                     Exclusive
                   </span>
                 )}
-                {product.premium && (
+                {isPremium && (
                   <span className="bg-yellow-900 text-white text-xs font-medium px-3 py-1 rounded-full">
                     Premium
                   </span>
@@ -116,9 +134,9 @@ const ProductDetail = () => {
                 <span className="font-heading text-3xl md:text-4xl font-semibold text-primary">
                   {formatPrice(product.price)}
                 </span>
-                {product.originalPrice && (
+                {(product.original_price || 0) > 0 && (
                   <span className="text-xl text-muted-foreground line-through">
-                    {formatPrice(product.originalPrice)}
+                    {formatPrice(product.original_price || 0)}
                   </span>
                 )}
               </div>
@@ -131,7 +149,7 @@ const ProductDetail = () => {
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <a
-                  href={getProductWhatsAppUrl(product.name, product.productUrl)}
+                  href={getProductWhatsAppUrl(product.name, product.product_url || window.location.href)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1"

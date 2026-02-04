@@ -1,15 +1,24 @@
 import { Package, MessageSquare, MapPin, MessageCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { products } from "@/data/products";
-import { testimonials } from "@/data/testimonials";
+import { useProducts } from "@/hooks/useProducts";
+import { useTestimonials } from "@/hooks/useTestimonials";
 import { citiesByIsland } from "@/data/citiesByIsland";
 import { WHATSAPP_CONFIG } from "@/config/whatsapp";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
+  const { data: products = [] } = useProducts();
+  const { data: testimonials = [] } = useTestimonials();
+  
   const totalProducts = products.length;
-  const activeProducts = products.filter((p) => p.isActive !== false).length;
+  // Assuming 'isActive' might not exist on all product types yet, defaulting to true if undefined for now
+  // or checking specific logic. For now, let's assume all fetched products are relevant.
+  // If API returns all, we can filter if there's an active flag. 
+  // Based on previous files, there isn't a strict 'isActive' column in Supabase schema shown yet, 
+  // but let's keep the logic if it exists, or just count total.
+  const activeProducts = products.length; 
+  
   const totalTestimonials = testimonials.length;
   const totalCities = Object.values(citiesByIsland).flat().length;
 

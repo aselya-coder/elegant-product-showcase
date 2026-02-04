@@ -206,8 +206,17 @@ const Products = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.name || !formData.category || !formData.price) {
-      toast.error("Mohon lengkapi field yang wajib diisi");
+    // Validasi field wajib
+    if (!formData.name) {
+      toast.error("Nama produk wajib diisi");
+      return;
+    }
+    if (!formData.category) {
+      toast.error("Kategori wajib dipilih");
+      return;
+    }
+    if (!formData.price) {
+      toast.error("Harga produk wajib diisi");
       return;
     }
 
