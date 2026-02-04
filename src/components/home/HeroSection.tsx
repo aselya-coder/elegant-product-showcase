@@ -75,7 +75,7 @@ const HeroSection = () => {
 
           {/* Hero Image */}
           <div className="relative hidden lg:flex items-center justify-center">
-            <div className="relative w-full max-w-[400px]">
+            <div className="relative w-full max-w-[450px]">
               <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl">
                 <div className="aspect-[3/4]">
                   <img 
@@ -86,7 +86,7 @@ const HeroSection = () => {
                 </div>
               </div>
               {/* Decorative frame */}
-              <div className="absolute -top-6 -right-6 w-full h-full border-2 border-primary/30 rounded-3xl -z-10" />
+              <div className="absolute -top-5 -right-5 w-full h-full border-2 border-primary/30 rounded-3xl -z-10" />
             </div>
           </div>
         </div>
