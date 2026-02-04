@@ -74,7 +74,10 @@ const HeroSection = () => {
           </div>
 
           {/* Hero Image */}
-          <div className="relative hidden lg:flex items-center justify-center">
+          <div 
+            className="relative hidden lg:flex items-center justify-center animate-fade-in-up" 
+            style={{ animationDelay: "0.4s", animationFillMode: "both" }}
+          >
             <div className="relative w-full max-w-[450px]">
               <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl">
                 <div className="aspect-[3/4]">
