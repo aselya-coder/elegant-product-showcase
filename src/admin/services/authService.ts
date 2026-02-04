@@ -22,7 +22,6 @@ export const authService = {
       id: data.user.id,
     };
 
-    localStorage.setItem("admin_user", JSON.stringify(user));
     return user;
   },
 
@@ -42,7 +41,6 @@ export const authService = {
         name: data.user.user_metadata?.full_name || "Admin",
         id: data.user.id,
       };
-      localStorage.setItem("admin_user", JSON.stringify(user));
       return user;
     }
     
@@ -51,7 +49,6 @@ export const authService = {
 
   logout: async (): Promise<void> => {
     await supabase.auth.signOut();
-    localStorage.removeItem("admin_user");
   },
 
   getCurrentUser: (): AdminUser | null => {

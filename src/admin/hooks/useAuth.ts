@@ -17,7 +17,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     // Initial session check
-    // Supabase persists the session in localStorage, so we check if the user is already logged in
+    // Session is configured to not persist (in-memory only), so refresh will clear it
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
