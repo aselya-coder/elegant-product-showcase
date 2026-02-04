@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Plus, Pencil, Trash2, Search, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Plus, Pencil, Trash2, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,7 +53,6 @@ const Cities = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingCity, setEditingCity] = useState<CityData | null>(null);
   const [deletingCity, setDeletingCity] = useState<CityData | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
 
   const [formData, setFormData] = useState({
     city: "",
@@ -65,6 +64,35 @@ const Cities = () => {
   const islands = ["jawa", "sumatra", "kalimantan", "sulawesi", "bali", "papua_maluku"];
   const ITEMS_PER_PAGE = 20;
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Auto-sync default cities if list is empty
+  useEffect(() => {
+    if (!isLoading && remoteCities.length === 0) {
+      const syncDefaultCities = async () => {
+        try {
+          const allCities: CityData[] = [];
+          Object.entries(citiesByIsland).forEach(([island, cityList]) => {
+            cityList.forEach((city) => {
+              allCities.push({
+                id: `${island}-${city}`.toLowerCase().replace(/\s+/g, '-'),
+                city,
+                island,
+                whatsappNumber: "6285646420488",
+                isActive: true,
+              });
+            });
+          });
+          
+          await saveMutation.mutateAsync(allCities);
+          toast.success(`Data kota berhasil diinisialisasi (${allCities.length} kota)`);
+        } catch (error) {
+          console.error("Failed to auto-sync cities:", error);
+        }
+      };
+      
+      syncDefaultCities();
+    }
+  }, [isLoading, remoteCities.length, saveMutation]);
 
   // Filter cities based on search query
   const filteredCities = useMemo(() => {
@@ -83,43 +111,6 @@ const Cities = () => {
     return filteredCities.slice(start, start + ITEMS_PER_PAGE);
   }, [filteredCities, currentPage]);
 
-  const handleSync = async () => {
-    if (!confirm("Are you sure you want to sync cities from default data? This will overwrite existing configuration.")) {
-      return;
-    }
-    
-    setIsSyncing(true);
-    try {
-      const allCities: CityData[] = [];
-      Object.entries(citiesByIsland).forEach(([island, cityList]) => {
-        cityList.forEach((city) => {
-          allCities.push({
-            id: `${island}-${city}`.toLowerCase().replace(/\s+/g, '-'),
-            city,
-            island,
-            whatsappNumber: "6285646420488",
-            isActive: true,
-          });
-        });
-      });
-      
-      await saveMutation.mutateAsync(allCities);
-      toast.success(`Successfully synced ${allCities.length} cities`);
-      // No need to invalidate manually as mutation does it, but local state update will happen via useEffect
-    } catch (error: any) {
-      console.error(error);
-      const isAuthError = error.status === 401 || error.message?.includes('401') || error.message?.includes('security policy');
-      
-      if (isAuthError) {
-        toast.error("Gagal: Izin ditolak. Pastikan Anda sudah login atau jalankan script setup database.");
-      } else {
-        toast.error(`Gagal melakukan sinkronisasi: ${error.message || "Unknown error"}`);
-      }
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-  
   // Replaced loadCities with effect from remote data
   
   const handleOpenDialog = (city?: CityData) => {
@@ -217,10 +208,6 @@ const Cities = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleSync} disabled={isSyncing}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
-            Sync Default Data
-          </Button>
           <Button onClick={() => handleOpenDialog()} className="gap-2">
             <Plus className="w-4 h-4" />
             Tambah Kota

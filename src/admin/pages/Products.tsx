@@ -41,7 +41,7 @@ import {
 } from "@/hooks/useProducts";
 import { Product, productsApi } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
-import { RefreshCw, Upload, X } from "lucide-react";
+import { Upload, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const Products = () => {
@@ -51,12 +51,47 @@ const Products = () => {
   const updateMutation = useUpdateProduct();
   const deleteMutation = useDeleteProduct();
 
+  // Auto-sync default products if list is empty
+  useEffect(() => {
+    if (!isLoading && products.length === 0) {
+      const syncDefaultProducts = async () => {
+        try {
+          let count = 0;
+          for (const p of defaultProducts) {
+            await productsApi.upsert({
+              slug: p.slug,
+              name: p.name,
+              price: p.price,
+              original_price: p.originalPrice,
+              category: p.category,
+              description: p.description,
+              image_url: p.images[0],
+              is_active: p.isActive ?? true,
+              is_featured: p.featured ?? false,
+              is_best_seller: p.bestSeller ?? false,
+              is_exclusive: p.exclusive ?? false,
+              is_premium: p.premium ?? false,
+            });
+            count++;
+          }
+          if (count > 0) {
+            toast.success(`Data produk berhasil diinisialisasi (${count} produk)`);
+            queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
+          }
+        } catch (error) {
+          console.error("Failed to auto-sync products:", error);
+        }
+      };
+
+      syncDefaultProducts();
+    }
+  }, [isLoading, products.length, queryClient]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
   
   // File upload state
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -170,41 +205,6 @@ const Products = () => {
     return data.publicUrl;
   };
 
-  const handleSync = async () => {
-    if (!confirm("Are you sure you want to sync products from default data? This might overwrite existing products with the same slug.")) {
-      return;
-    }
-    
-    setIsSyncing(true);
-    try {
-      let count = 0;
-      for (const p of defaultProducts) {
-        await productsApi.upsert({
-          slug: p.slug,
-          name: p.name,
-          price: p.price,
-          original_price: p.originalPrice,
-          category: p.category,
-          description: p.description,
-          image_url: p.images[0],
-          is_active: p.isActive ?? true,
-          is_featured: p.featured ?? false,
-          is_best_seller: p.bestSeller ?? false,
-          is_exclusive: p.exclusive ?? false,
-          is_premium: p.premium ?? false,
-        });
-        count++;
-      }
-      toast.success(`Successfully synced ${count} products`);
-      queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to sync products");
-    } finally {
-      setIsSyncing(false);
-    }
-  };
-
   const handleSave = async () => {
     // Validasi field wajib
     if (!formData.name) {
@@ -302,10 +302,6 @@ const Products = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleSync} disabled={isSyncing}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
-            Sync Default Data
-          </Button>
           <Button onClick={() => handleOpenDialog()} className="gap-2">
             <Plus className="w-4 h-4" />
             Tambah Produk

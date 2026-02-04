@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Plus, Pencil, Trash2, Star, RefreshCw, Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Plus, Pencil, Trash2, Star, Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,11 +40,41 @@ const Testimonials = () => {
   const updateMutation = useUpdateTestimonial();
   const deleteMutation = useDeleteTestimonial();
 
+  // Auto-sync default testimonials if list is empty
+  useEffect(() => {
+    if (!isLoading && testimonials.length === 0) {
+      const syncDefaultTestimonials = async () => {
+        try {
+          let count = 0;
+          for (const t of defaultTestimonials) {
+            await testimonialsApi.create({
+              name: t.name,
+              role: t.role,
+              content: t.content,
+              rating: t.rating,
+              product: t.product,
+              is_approved: true,
+            });
+            count++;
+          }
+          
+          if (count > 0) {
+            toast.success(`Data testimoni berhasil diinisialisasi (${count} testimoni)`);
+            queryClient.invalidateQueries({ queryKey: TESTIMONIALS_QUERY_KEY });
+          }
+        } catch (error) {
+          console.error("Failed to auto-sync testimonials:", error);
+        }
+      };
+      
+      syncDefaultTestimonials();
+    }
+  }, [isLoading, testimonials.length, queryClient]);
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
   const [deletingTestimonial, setDeletingTestimonial] = useState<Testimonial | null>(null);
-  const [isSyncing, setIsSyncing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const ITEMS_PER_PAGE = 10;
   const [currentPage, setCurrentPage] = useState(1);
@@ -94,47 +124,6 @@ const Testimonials = () => {
       });
     }
     setDialogOpen(true);
-  };
-
-  const handleSync = async () => {
-    if (!confirm("Are you sure you want to sync testimonials from default data? This will add any missing testimonials.")) {
-      return;
-    }
-    
-    setIsSyncing(true);
-    try {
-      let count = 0;
-      for (const t of defaultTestimonials) {
-        // Check if exists by name and content
-        const exists = testimonials.some(
-          (existing) => existing.name === t.name && existing.content === t.content
-        );
-        
-        if (!exists) {
-          await testimonialsApi.create({
-            name: t.name,
-            role: t.role,
-            content: t.content,
-            rating: t.rating,
-            product: t.product,
-            is_approved: true,
-          });
-          count++;
-        }
-      }
-      
-      if (count > 0) {
-        toast.success(`Successfully synced ${count} testimonials`);
-        queryClient.invalidateQueries({ queryKey: TESTIMONIALS_QUERY_KEY });
-      } else {
-        toast.info("All default testimonials already exist");
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to sync testimonials");
-    } finally {
-      setIsSyncing(false);
-    }
   };
 
   const handleSave = async () => {
@@ -201,10 +190,6 @@ const Testimonials = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleSync} disabled={isSyncing}>
-            <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
-            Sync Default Data
-          </Button>
           <Button onClick={() => handleOpenDialog()} className="gap-2">
             <Plus className="w-4 h-4" />
             Tambah Testimoni
