@@ -160,10 +160,12 @@ const Cities = () => {
       
       await saveMutation.mutateAsync(updatedCities);
       setDialogOpen(false);
-    } catch (error: any) {
+    } catch (error) {
       toast.error("Terjadi kesalahan. Silakan coba lagi.");
       
-      const isConflictError = error.status === 409 || error.message?.includes('409') || error.message?.includes('conflict');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const err = error as any;
+      const isConflictError = err.status === 409 || err.message?.includes('409') || err.message?.includes('conflict');
       if (isConflictError) {
         toast.error("Gagal: Data konflik. Mungkin data sudah ada.");
       }

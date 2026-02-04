@@ -28,8 +28,16 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const originalPrice = 'originalPrice' in product ? product.originalPrice : ('original_price' in product ? product.original_price : undefined);
   
   // Robust check for tags (handle both camelCase from local data and snake_case from API)
-  // We use type assertion to any to safely check all possible property names
-  const p = product as any;
+  // We use type assertion to handle inconsistent property names across different data sources
+  const p = product as { 
+    bestSeller?: boolean; 
+    is_best_seller?: boolean; 
+    best_seller?: boolean;
+    exclusive?: boolean;
+    is_exclusive?: boolean;
+    premium?: boolean;
+    is_premium?: boolean;
+  };
   const isBestSeller = p.bestSeller || p.is_best_seller || p.best_seller || false;
   const isExclusive = p.exclusive || p.is_exclusive || false;
   const isPremium = p.premium || p.is_premium || false;
