@@ -38,12 +38,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
   
   // Helper to clean slug if it contains a full URL (handling legacy data issues)
   const getCleanSlug = (slug: string) => {
-    if (slug.includes('bloomgift.com')) {
-      return slug.split('/').pop() || slug;
-    }
-    if (slug.startsWith('http')) {
-      const parts = slug.split('/');
-      return parts[parts.length - 1] || slug;
+    // Handle full URLs or paths by taking the last segment
+    if (slug.includes('/') || slug.startsWith('http')) {
+      return slug.split('/').filter(Boolean).pop() || slug;
     }
     return slug;
   };

@@ -74,18 +74,20 @@ const HeroSection = () => {
           </div>
 
           {/* Hero Image */}
-          <div className="relative hidden lg:block">
-            <div className="relative z-10 rounded-2xl overflow-hidden shadow-hover">
-              <div className="aspect-[4/5]">
-                <img 
-                  src={heroImage} 
-                  alt="BloomGift - Buket Bunga dan Hampers Premium" 
-                  className="w-full h-full object-cover"
-                />
+          <div className="relative hidden lg:flex items-center justify-center">
+            <div className="relative w-full max-w-[400px]">
+              <div className="relative z-10 rounded-3xl overflow-hidden shadow-2xl">
+                <div className="aspect-[3/4]">
+                  <img 
+                    src={heroImage} 
+                    alt="BloomGift - Buket Bunga dan Hampers Premium" 
+                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                  />
+                </div>
               </div>
+              {/* Decorative frame */}
+              <div className="absolute -top-6 -right-6 w-full h-full border-2 border-primary/30 rounded-3xl -z-10" />
             </div>
-            {/* Decorative frame */}
-            <div className="absolute -top-4 -right-4 w-full h-full border-2 border-primary rounded-2xl -z-10" />
           </div>
         </div>
       </div>
