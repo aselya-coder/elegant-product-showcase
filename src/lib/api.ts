@@ -1,7 +1,7 @@
 // API Service Layer using Supabase
 import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
-import { products as localProducts } from "@/data/products";
+import { products as localProducts, Product as LocalProduct } from "@/data/products";
 
 /* ==================== PRODUCTS ==================== */
 
@@ -18,7 +18,7 @@ export type Product = Database["public"]["Tables"]["products"]["Row"] & {
 };
 
 // Helper to map local product to API structure for fallback
-const mapToApiProduct = (p: any): Product => ({
+const mapToApiProduct = (p: LocalProduct): Product => ({
   ...p,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
