@@ -1,10 +1,15 @@
 import { useParams, Link, Navigate } from "react-router-dom";
-import { ArrowLeft, ShoppingBag, MessageCircle, Truck, Shield, RefreshCw } from "lucide-react";
+import { ArrowLeft, ShoppingBag, MessageCircle, Truck, Shield, RefreshCw, ZoomIn } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import ProductCard from "@/components/product/ProductCard";
-import { useProductBySlug, useProducts } from "@/hooks/useProducts";
+import { useProductBySlug, useProducts, useProductsByCategory } from "@/hooks/useProducts";
 import { getProductWhatsAppUrl, getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("id-ID", {
@@ -17,9 +22,45 @@ const formatPrice = (price: number) => {
 
 const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
-  const { data: product, isLoading } = useProductBySlug(slug || "");
-  const { data: allProducts = [] } = useProducts();
+  
+  // 1. Try to fetch product directly (FAST path)
+  const { data: directProduct, isLoading: isLoadingDirect, isError: isDirectError } = useProductBySlug(slug || "");
+  
+  // 2. Fallback: Fetch all products only if direct fetch failed (SLOW path for legacy/dirty slugs)
+  // We enable this query ONLY if direct fetch finished AND didn't return a product
+  const shouldFetchFallback = !isLoadingDirect && !directProduct;
+  const { data: allProducts = [], isLoading: isLoadingFallback } = useProducts();
+  
+  // 3. Helper to clean slug (handling legacy data issues where slug might be a full URL)
+  const getCleanSlug = (s: string) => {
+    if (s.includes('/') || s.startsWith('http')) {
+      return s.split('/').filter(Boolean).pop() || s;
+    }
+    return s;
+  };
+
+  // 4. Resolve the final product
+  const product = directProduct || (shouldFetchFallback ? allProducts.find(p => getCleanSlug(p.slug) === slug) : null);
+  
+  // 5. Fetch related products (Optimized: fetch by category instead of filtering all)
+  const category = product?.category;
+  const { data: relatedProductsData = [], isLoading: isLoadingRelated } = useProductsByCategory(
+    category || "", 
+    4,
+    !!category // Only fetch if we have a category
+  );
+  
+  // Use optimized related products if available, otherwise fallback to filtering all (if all loaded)
+  const relatedProducts = relatedProductsData.length > 0 
+    ? relatedProductsData.filter(p => p.id !== product?.id).slice(0, 4)
+    : (allProducts.length > 0 && product ? allProducts.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4) : []);
+
   const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+
+  // Loading state: 
+  // - If we are fetching direct, we are loading.
+  // - If direct finished but no product, and we are fetching fallback, we are loading.
+  const isLoading = isLoadingDirect || (shouldFetchFallback && isLoadingFallback && !product);
 
   if (isLoading) {
     return (
@@ -34,11 +75,6 @@ const ProductDetail = () => {
   if (!product) {
     return <Navigate to="/katalog" replace />;
   }
-
-  // Get related products (same category, excluding current)
-  const relatedProducts = allProducts
-    .filter((p) => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
 
   const discount = (product.original_price || 0) > 0
     ? Math.round((((product.original_price || 0) - product.price) / (product.original_price || 1)) * 100)
@@ -85,13 +121,32 @@ const ProductDetail = () => {
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Image Gallery */}
             <div className="space-y-4">
-              <div className="aspect-square rounded-2xl overflow-hidden bg-muted shadow-card">
-                <img
-                  src={mainImage}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <div className="aspect-square rounded-2xl overflow-hidden bg-muted shadow-card cursor-pointer group relative">
+                    <img
+                      src={mainImage}
+                      alt={product.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 bg-white/90 px-4 py-2 rounded-full text-sm font-medium transition-all transform translate-y-4 group-hover:translate-y-0 flex items-center gap-2 shadow-lg">
+                        <ZoomIn className="w-4 h-4" />
+                        Klik untuk memperbesar
+                      </div>
+                    </div>
+                  </div>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl w-full p-0 overflow-hidden bg-transparent border-none shadow-none ring-0 focus:ring-0">
+                   <div className="relative w-full h-[80vh] flex items-center justify-center">
+                    <img
+                      src={mainImage}
+                      alt={product.name}
+                      className="w-full h-full object-contain rounded-lg"
+                    />
+                   </div>
+                </DialogContent>
+              </Dialog>
             </div>
 
             {/* Product Info */}

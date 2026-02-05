@@ -5,10 +5,17 @@ import { useProductBySlug } from "@/hooks/useProducts";
 
 const WhatsAppFloat = () => {
   const location = useLocation();
-  const { slug } = useParams<{ slug: string }>();
+  const params = useParams<{ slug: string }>();
+  
+  // Extract slug from URL path if useParams is empty (which happens if component is outside Route)
+  const pathSlug = location.pathname.startsWith('/produk/') 
+    ? location.pathname.split('/produk/')[1] 
+    : undefined;
+    
+  const slug = params.slug || pathSlug;
   
   // Check if we are on a product page
-  const isProductPage = location.pathname.startsWith('/produk/') && !!slug;
+  const isProductPage = !!slug;
   
   // Fetch product data if on product page (uses cache from ProductDetail)
   const { data: product } = useProductBySlug(isProductPage ? slug || "" : "");

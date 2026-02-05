@@ -29,6 +29,15 @@ export const useProductBySlug = (slug: string) => {
   });
 };
 
+// Hook for fetching products by category
+export const useProductsByCategory = (category: string, limit: number = 4, enabled: boolean = true) => {
+  return useQuery({
+    queryKey: [...PRODUCTS_QUERY_KEY, "category", category, limit],
+    queryFn: () => productsApi.getByCategory(category, limit),
+    enabled: enabled && !!category,
+  });
+};
+
 // Hook for creating a product
 export const useCreateProduct = () => {
   const queryClient = useQueryClient();

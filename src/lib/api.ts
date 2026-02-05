@@ -1,6 +1,7 @@
 // API Service Layer using Supabase
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, isSupabaseConfigured } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
+import { products as localProducts } from "@/data/products";
 
 /* ==================== PRODUCTS ==================== */
 
@@ -16,40 +17,149 @@ export type Product = Database["public"]["Tables"]["products"]["Row"] & {
   is_premium?: boolean;
 };
 
+// Helper to map local product to API structure for fallback
+const mapToApiProduct = (p: any): Product => ({
+  ...p,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  original_price: p.originalPrice,
+  image_url: p.images?.[0] || "",
+  product_url: p.productUrl,
+  is_featured: p.featured,
+  is_best_seller: p.bestSeller,
+  is_exclusive: p.exclusive,
+  is_premium: p.premium,
+  is_active: true,
+  short_description: p.shortDescription,
+  // Ensure we map snake_case fields that might be used
+  category: p.category,
+  description: p.description,
+  id: p.id,
+  name: p.name,
+  price: p.price,
+  slug: p.slug
+} as unknown as Product);
+
 export const productsApi = {
   getAll: async () => {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: true });
+    // Skip Supabase if not configured to avoid 406 errors
+    if (!isSupabaseConfigured) {
+      return localProducts.map(mapToApiProduct);
+    }
 
-    if (error) throw error;
-    return data as Product[];
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .order("created_at", { ascending: true });
+
+      if (error) throw error;
+      return data as Product[];
+    } catch (error) {
+      console.warn("Supabase fetch failed, falling back to local data:", error);
+      return localProducts.map(mapToApiProduct);
+    }
   },
 
   getById: async (id: string) => {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .eq("id", id)
-      .single();
+    // Skip Supabase if not configured to avoid 406 errors
+    if (!isSupabaseConfigured) {
+      const p = localProducts.find(p => p.id === id);
+      if (!p) throw new Error(`Product not found: ${id}`);
+      return mapToApiProduct(p);
+    }
 
-    if (error) throw error;
-    return data as Product;
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) throw error;
+      return data as Product;
+    } catch (error) {
+      console.warn("Supabase fetch failed, falling back to local data:", error);
+      const p = localProducts.find(p => p.id === id);
+      if (!p) throw error;
+      return mapToApiProduct(p);
+    }
   },
 
   getBySlug: async (slug: string) => {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .eq("slug", slug)
-      .single();
+    // Skip Supabase if not configured to avoid 406 errors
+    if (!isSupabaseConfigured) {
+      // Try exact match first
+      let p = localProducts.find(p => p.slug === slug);
+      
+      // If not found, try cleaning the slug (in case it's a full URL)
+      if (!p) {
+        const cleanSlug = slug.split('/').pop() || slug;
+        p = localProducts.find(p => p.slug === cleanSlug);
+      }
+      
+      if (!p) throw new Error(`Product not found: ${slug}`);
+      return mapToApiProduct(p);
+    }
 
-    if (error) throw error;
-    return data as Product;
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+
+      if (error) throw error;
+      return data as Product;
+    } catch (error) {
+      console.warn("Supabase fetch failed, falling back to local data:", error);
+      // Try exact match first
+      let p = localProducts.find(p => p.slug === slug);
+      
+      // If not found, try cleaning the slug (in case it's a full URL)
+      if (!p) {
+        const cleanSlug = slug.split('/').pop() || slug;
+        p = localProducts.find(p => p.slug === cleanSlug);
+      }
+      
+      if (!p) throw error;
+      return mapToApiProduct(p);
+    }
+  },
+
+  getByCategory: async (category: string, limit: number = 4) => {
+    // Skip Supabase if not configured to avoid 406 errors
+    if (!isSupabaseConfigured) {
+      return localProducts
+        .filter(p => p.category === category)
+        .slice(0, limit)
+        .map(mapToApiProduct);
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("category", category)
+        .limit(limit);
+
+      if (error) throw error;
+      return data as Product[];
+    } catch (error) {
+      console.warn("Supabase fetch failed, falling back to local data:", error);
+      return localProducts
+        .filter(p => p.category === category)
+        .slice(0, limit)
+        .map(mapToApiProduct);
+    }
   },
 
   create: async (product: Partial<Product>) => {
+    // Skip Supabase if not configured
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase not configured - cannot create products without database');
+    }
+
     const { error } = await supabase.from("products").insert({
       name: product.name!,
       slug: product.slug!,
@@ -71,6 +181,11 @@ export const productsApi = {
   },
 
   upsert: async (product: Partial<Product>) => {
+    // Skip Supabase if not configured
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase not configured - cannot upsert products without database');
+    }
+
     const { error } = await supabase.from("products").upsert({
       name: product.name!,
       slug: product.slug!,
@@ -92,6 +207,11 @@ export const productsApi = {
   },
 
   update: async (id: string, updates: Partial<Product>) => {
+    // Skip Supabase if not configured
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase not configured - cannot update products without database');
+    }
+
     const { error } = await supabase
       .from("products")
       .update({
@@ -116,6 +236,11 @@ export const productsApi = {
   },
 
   delete: async (id: string) => {
+    // Skip Supabase if not configured
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase not configured - cannot delete products without database');
+    }
+
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) throw error;
     return true;
@@ -129,6 +254,11 @@ export type Testimonial =
 
 export const testimonialsApi = {
   getAll: async () => {
+    // Skip Supabase if not configured
+    if (!isSupabaseConfigured) {
+      return [];
+    }
+
     const { data, error } = await supabase
       .from("testimonials")
       .select("*")
@@ -140,6 +270,11 @@ export const testimonialsApi = {
   },
 
   getById: async (id: string) => {
+    // Skip Supabase if not configured
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase not configured');
+    }
+
     const { data, error } = await supabase
       .from("testimonials")
       .select("*")
@@ -151,6 +286,11 @@ export const testimonialsApi = {
   },
 
   create: async (testimonial: Partial<Testimonial>) => {
+    // Skip Supabase if not configured
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase not configured');
+    }
+
     const { error } = await supabase.from("testimonials").insert({
       name: testimonial.name!,
       content: testimonial.content!,
@@ -165,6 +305,11 @@ export const testimonialsApi = {
   },
 
   update: async (id: string, updates: Partial<Testimonial>) => {
+    // Skip Supabase if not configured
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase not configured');
+    }
+
     const { error } = await supabase
       .from("testimonials")
       .update({
@@ -182,6 +327,11 @@ export const testimonialsApi = {
   },
 
   delete: async (id: string) => {
+    // Skip Supabase if not configured
+    if (!isSupabaseConfigured) {
+      throw new Error('Supabase not configured');
+    }
+
     const { error } = await supabase
       .from("testimonials")
       .delete()
