@@ -42,7 +42,7 @@ import {
 import { Product, productsApi } from "@/lib/api";
 import { useQueryClient } from "@tanstack/react-query";
 import { Upload, X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { uploadProductImage } from "@/lib/storage";
 
 const Products = () => {
   const queryClient = useQueryClient();
@@ -189,23 +189,13 @@ const Products = () => {
   };
 
   const uploadImage = async (file: File): Promise<string> => {
-    const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-    const filePath = `${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('products')
-      .upload(filePath, file);
-
-    if (uploadError) {
-      throw uploadError;
+    const result = await uploadProductImage(file);
+    
+    if (!result.success) {
+      throw new Error(result.error || "Gagal mengupload gambar");
     }
-
-    const { data } = supabase.storage
-      .from('products')
-      .getPublicUrl(filePath);
-
-    return data.publicUrl;
+    
+    return result.url!;
   };
 
   const handleSave = async () => {
@@ -231,9 +221,13 @@ const Products = () => {
         setIsUploading(true);
         try {
           imageUrl = await uploadImage(selectedFile);
+          toast.success("Gambar berhasil diupload ke Supabase");
         } catch (error) {
           console.error("Upload failed:", error);
-          toast.error("Gagal mengupload gambar");
+          const errorMessage = error instanceof Error 
+            ? error.message 
+            : "Gagal mengupload gambar";
+          toast.error(errorMessage);
           setIsUploading(false);
           return;
         }
