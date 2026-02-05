@@ -19,6 +19,7 @@ const ProductDetail = () => {
   const { slug } = useParams<{ slug: string }>();
   const { data: product, isLoading } = useProductBySlug(slug || "");
   const { data: allProducts = [] } = useProducts();
+  const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
 
   if (isLoading) {
     return (
@@ -149,14 +150,14 @@ const ProductDetail = () => {
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <a
-                  href={getProductWhatsAppUrl(product.name, product.product_url || window.location.href)}
+                  href={product.product_url || getProductWhatsAppUrl(product.name, `${siteUrl}/produk/${product.slug}`)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1"
                 >
                   <Button className="w-full btn-primary rounded-full py-6 gap-2 text-base">
                     <ShoppingBag className="w-5 h-5" />
-                    Pesan Sekarang
+                    {product.product_url ? "Beli Sekarang" : "Pesan Sekarang"}
                   </Button>
                 </a>
                 <a

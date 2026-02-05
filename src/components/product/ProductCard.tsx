@@ -19,6 +19,8 @@ const formatPrice = (price: number) => {
 };
 
 const ProductCard = ({ product }: ProductCardProps) => {
+  const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+  
   // Handle both API and data product types
   const images = 'images' in product && product.images ? product.images : ['image_url' in product ? product.image_url : ''];
   const imageUrl = images[0] || '/placeholder.svg';
@@ -121,14 +123,14 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
         {/* Action Button */}
         <a
-          href={getProductWhatsAppUrl(product.name, productUrl)}
+          href={productUrl ? productUrl : getProductWhatsAppUrl(product.name, siteUrl + '/produk/' + cleanSlug)}
           target="_blank"
           rel="noopener noreferrer"
           className="block pt-2"
         >
           <Button className="w-full btn-primary rounded-full gap-2">
             <ShoppingBag className="w-4 h-4" />
-            Pesan Sekarang
+            {productUrl ? "Beli Sekarang" : "Pesan Sekarang"}
           </Button>
         </a>
       </div>

@@ -15,7 +15,9 @@ const WhatsApp = () => {
     defaultMessage: WHATSAPP_CONFIG.defaultMessage,
     consultationMessage: WHATSAPP_CONFIG.consultationMessage,
     floatingButtonEnabled: true,
-    productMessageTemplate: "Halo, saya tertarik dengan produk {nama_produk}",
+    productMessageTemplate: `Halo, saya tertarik dengan produk berikut:
+Nama Produk: {nama_produk}
+Link Produk: {link_produk}`,
   });
 
   const handleSave = () => {
@@ -169,10 +171,12 @@ const WhatsApp = () => {
               <code className="text-xs bg-muted p-2 rounded block break-all">
                 https://wa.me/{config.phoneNumber}?text=
                 {encodeURIComponent(
-                  config.productMessageTemplate.replace(
-                    "{nama_produk}",
-                    "Buket Mawar Merah"
-                  )
+                  config.productMessageTemplate
+                    .replace("{nama_produk}", "Buket Mawar Merah")
+                    .replace(
+                      "{link_produk}",
+                      `${import.meta.env.VITE_SITE_URL || "https://elegant-showcase.com"}/produk/buket-mawar-merah`
+                    )
                 )}
               </code>
             </div>

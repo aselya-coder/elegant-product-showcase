@@ -106,6 +106,7 @@ const Products = () => {
     category: "",
     slug: "",
     image_url: "",
+    product_url: "",
     is_active: true,
     is_featured: false,
     is_best_seller: false,
@@ -144,6 +145,7 @@ const Products = () => {
         category: product.category,
         slug: product.slug,
         image_url: product.image_url || "",
+        product_url: product.product_url || "",
         is_active: product.is_active ?? true,
         is_featured: product.is_featured ?? false,
         is_best_seller: product.is_best_seller ?? false,
@@ -161,6 +163,7 @@ const Products = () => {
         category: "",
         slug: "",
         image_url: "",
+        product_url: "",
         is_active: true,
         is_featured: false,
         is_best_seller: false,
@@ -422,6 +425,20 @@ const Products = () => {
                         <Button
                           variant="ghost"
                           size="icon"
+                          asChild
+                          title="Lihat Produk"
+                        >
+                          <a 
+                            href={`/produk/${product.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </a>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleOpenDialog(product)}
                         >
                           <Pencil className="w-4 h-4" />
@@ -539,6 +556,21 @@ const Products = () => {
               />
               <p className="text-xs text-muted-foreground">
                 Biarkan kosong untuk generate otomatis dari nama produk
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="product_url">Link Eksternal / Marketplace (Opsional)</Label>
+              <Input
+                id="product_url"
+                value={formData.product_url}
+                onChange={(e) =>
+                  setFormData({ ...formData, product_url: e.target.value })
+                }
+                placeholder="https://tokopedia.com/..."
+              />
+              <p className="text-xs text-muted-foreground">
+                Jika diisi, tombol "Pesan Sekarang" akan mengarah ke link ini langsung.
               </p>
             </div>
 

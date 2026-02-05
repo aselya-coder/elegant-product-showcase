@@ -1,10 +1,31 @@
 import { FaWhatsapp } from "react-icons/fa";
-import { getWhatsAppUrl } from "@/config/whatsapp";
+import { getWhatsAppUrl, getProductWhatsAppUrl } from "@/config/whatsapp";
+import { useLocation, useParams } from "react-router-dom";
+import { useProductBySlug } from "@/hooks/useProducts";
 
 const WhatsAppFloat = () => {
+  const location = useLocation();
+  const { slug } = useParams<{ slug: string }>();
+  
+  // Check if we are on a product page
+  const isProductPage = location.pathname.startsWith('/produk/') && !!slug;
+  
+  // Fetch product data if on product page (uses cache from ProductDetail)
+  const { data: product } = useProductBySlug(isProductPage ? slug || "" : "");
+  
+  const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
+
+  // Determine the correct WhatsApp URL
+  let href = getWhatsAppUrl(); // Default message
+  
+  if (isProductPage && product) {
+     const productUrl = `${siteUrl}/produk/${product.slug}`;
+     href = getProductWhatsAppUrl(product.name, productUrl);
+  }
+
   return (
     <a
-      href={getWhatsAppUrl()}
+      href={href}
       target="_blank"
       rel="noopener noreferrer"
       className="

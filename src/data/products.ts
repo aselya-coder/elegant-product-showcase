@@ -62,7 +62,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: true,
-    productUrl: "/produk/buket-mawar-merah-premium",
+    productUrl: "",
   },
   {
     id: "2",
@@ -78,7 +78,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: true,
     premium: false,
-    productUrl: "/produk/hampers-lebaran-eksklusif",
+    productUrl: "",
   },
   {
     id: "3",
@@ -93,7 +93,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "/produk/kue-ulang-tahun-custom",
+    productUrl: "",
   },
   {
     id: "4",
@@ -108,7 +108,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "/produk/buket-bunga-matahari",
+    productUrl: "",
   },
   {
     id: "5",
@@ -123,7 +123,7 @@ export const products: Product[] = [
     bestSeller: true,
     exclusive: false,
     premium: false,
-    productUrl: "/produk/hampers-bayi-newborn",
+    productUrl: "",
   },
   {
     id: "6",
@@ -139,7 +139,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "/produk/dekorasi-lamaran-romantis", 
+    productUrl: "",
   },
   {
     id: "7",
@@ -154,7 +154,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: true,
-    productUrl: "/produk/buket-lily-putih-elegan",
+    productUrl: "",
   },
   {
     id: "8",
@@ -169,7 +169,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: true,
-    productUrl: "/produk/kue-pengantin-3-tier",
+    productUrl: "",
   },
   {
     id: "9",
@@ -184,7 +184,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "/produk/papan-duka-cita-simpati",
+    productUrl: "",
   },
   {
     id: "10",
@@ -199,7 +199,7 @@ export const products: Product[] = [
     bestSeller: true,
     exclusive: false,
     premium: false,
-    productUrl: "/produk/parsel-natal-elegan",
+    productUrl: "",
   },
   {
     id: "11",
@@ -214,7 +214,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: true,
     premium: false,
-    productUrl: "/produk/paket-natal-ekslusif",
+    productUrl: "",
   },
   {
     id: "12",
@@ -229,7 +229,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "/produk/paket-natal-special",
+    productUrl: "",
   },
   {
     id: "13",
@@ -244,7 +244,7 @@ export const products: Product[] = [
     bestSeller: true,
     exclusive: false,
     premium: false,
-    productUrl: "/produk/dekorasi-lamaran-simple-elegant",
+    productUrl: "",
   },
   {
     id: "14",
@@ -259,7 +259,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: true,
-    productUrl: "/produk/dekorasi-lamaran-elegant",
+    productUrl: "",
   },
   {
     id: "15",
@@ -274,7 +274,7 @@ export const products: Product[] = [
     bestSeller: true,
     exclusive: false,
     premium: false,
-    productUrl: "/produk/papan-bunga-akrilik-modern",
+    productUrl: "",
   },
   {
     id: "16",
@@ -289,7 +289,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "/produk/papan-bunga-happy-wedding-bal",
+    productUrl: "",
   },
   {
     id: "17",
@@ -304,7 +304,7 @@ export const products: Product[] = [
     bestSeller: false,
     exclusive: false,
     premium: false,
-    productUrl: "/produk/papan-duka-cita-simpati",
+    productUrl: "",
   },
   {
     id: "18",
@@ -319,7 +319,7 @@ export const products: Product[] = [
     bestSeller: true,
     exclusive: false,
     premium: false,
-    productUrl: "/produk/bento-cake-unik",
+    productUrl: "",
   },
   {
     id: "19",
@@ -334,7 +334,7 @@ export const products: Product[] = [
     bestSeller: true,
     exclusive: false,
     premium: true,
-    productUrl: "/produk/hampers-lebaran",
+    productUrl: "",
   }
 ];
 
