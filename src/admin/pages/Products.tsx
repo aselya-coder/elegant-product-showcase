@@ -227,11 +227,34 @@ const Products = () => {
           const errorMessage = error instanceof Error 
             ? error.message 
             : "Gagal mengupload gambar";
-          toast.error(errorMessage);
+          
+          // Show error with helpful suggestion
+          toast.error(errorMessage, {
+            description: "Gunakan input URL manual di bawah, atau setup Supabase terlebih dahulu.",
+            duration: 5000,
+          });
           setIsUploading(false);
+          
+          // Don't block save - user can use manual URL instead
+          setSelectedFile(null); // Clear failed file
           return;
         }
         setIsUploading(false);
+      }
+
+      // Check if Supabase is configured before trying to save to database
+      const { isSupabaseConfigured } = await import("@/integrations/supabase/client");
+      
+      if (!isSupabaseConfigured) {
+        // Mock save for UI demonstration if Supabase is not configured
+        toast.success("Mode Demo: Produk disimpan (lokal saja)", {
+          description: "Data tidak akan tersimpan permanen karena Supabase belum dikonfigurasi.",
+          duration: 4000
+        });
+        setDialogOpen(false);
+        // Invalidate queries to refresh UI (it will reload local data)
+        queryClient.invalidateQueries({ queryKey: PRODUCTS_QUERY_KEY });
+        return;
       }
 
       if (editingProduct) {
@@ -609,25 +632,43 @@ const Products = () => {
                   )}
                 </div>
                 <div className="flex-1 space-y-2">
-                  <Input
-                    id="image_upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="cursor-pointer"
-                  />
-                  <div className="text-xs text-muted-foreground">
-                    Atau gunakan URL gambar eksternal:
+                  <div className="space-y-1.5">
+                    <div className="text-sm font-medium">Upload File (Butuh Supabase)</div>
+                    <Input
+                      id="image_upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="cursor-pointer"
+                      disabled={isUploading}
+                    />
                   </div>
-                  <Input
-                    id="image_url"
-                    value={formData.image_url}
-                    onChange={(e) => {
-                      setFormData({ ...formData, image_url: e.target.value });
-                      setImagePreview(e.target.value);
-                    }}
-                    placeholder="https://example.com/image.jpg"
-                  />
+                  <div className="relative py-2">
+                    <div className="absolute inset-0 flex items-center">
+                      <span className="w-full border-t" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">
+                        Atau
+                      </span>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <div className="text-sm font-medium">URL Gambar Manual</div>
+                    <Input
+                      id="image_url"
+                      value={formData.image_url}
+                      onChange={(e) => {
+                        setFormData({ ...formData, image_url: e.target.value });
+                        setImagePreview(e.target.value);
+                        setSelectedFile(null); // Clear file if using manual URL
+                      }}
+                      placeholder="https://example.com/image.jpg"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Bisa gunakan link dari Unsplash, Pexels, atau CDN lainnya
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

@@ -14,7 +14,8 @@ const isValidUrl = (url: string) => {
 
 const isValidKey = (key: string) => {
   // Real Supabase anon keys are long JWT tokens, not short placeholder values
-  return key && key.length > 100 && key.startsWith('eyJ');
+  // Modified to be less strict for testing/development if needed, but still basic check
+  return key && key.length > 20; 
 };
 
 // Check if Supabase is properly configured
