@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Product as ApiProduct } from "@/lib/api";
 import { Product as DataProduct } from "@/data/products";
 import { getProductWhatsAppUrl } from "@/config/whatsapp";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ProductCardProps {
   product: ApiProduct | DataProduct;
@@ -22,8 +23,19 @@ const ProductCard = ({ product }: ProductCardProps) => {
   const siteUrl = import.meta.env.VITE_SITE_URL || window.location.origin;
   
   // Handle both API and data product types
-  const images = 'images' in product && product.images ? product.images : ['image_url' in product ? product.image_url : ''];
-  const imageUrl = images[0] || '/placeholder.svg';
+  const rawImages = 'images' in product && product.images ? product.images : ('image_url' in product && product.image_url ? [product.image_url] : []);
+  
+  // Construct full public URL from Supabase Storage if it's a relative path
+  const getPublicImageUrl = (path: string) => {
+    if (!path || path.startsWith('http')) {
+      return path; // It's already a full URL or empty
+    }
+    // Assumes images are in a bucket named 'products'
+    const { data } = supabase.storage.from('products').getPublicUrl(path);
+    return data?.publicUrl || '/placeholder.svg';
+  };
+
+  const imageUrl = getPublicImageUrl(rawImages[0]) || '/placeholder.svg';
   const shortDescription = 'shortDescription' in product ? product.shortDescription : product.description?.substring(0, 100);
   
   // Robust check for prices
