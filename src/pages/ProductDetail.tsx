@@ -2,6 +2,7 @@ import { useParams, Link, Navigate } from "react-router-dom";
 import { ArrowLeft, ShoppingBag, MessageCircle, Truck, Shield, RefreshCw, ZoomIn } from "lucide-react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import NotFound from "./NotFound";
 import ProductCard from "@/components/product/ProductCard";
 import { useProductBySlug, useProducts, useProductsByCategory } from "@/hooks/useProducts";
 import { getProductWhatsAppUrl, getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";
@@ -73,7 +74,7 @@ const ProductDetail = () => {
   }
 
   if (!product) {
-    return <Navigate to="/katalog" replace />;
+    return <NotFound />;
   }
 
   const discount = (product.original_price || 0) > 0
@@ -251,6 +252,7 @@ const ProductDetail = () => {
         </div>
       </section>
 
+      {/* Related Products */}
       {/* Related Products */}
       {relatedProducts.length > 0 && (
         <section className="section-padding bg-secondary/50">
