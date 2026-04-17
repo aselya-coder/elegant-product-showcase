@@ -6,6 +6,7 @@ import NotFound from "./NotFound";
 import ProductCard from "@/components/product/ProductCard";
 import { useProductBySlug, useProducts, useProductsByCategory } from "@/hooks/useProducts";
 import { getProductWhatsAppUrl, getWhatsAppUrl, WHATSAPP_CONFIG } from "@/config/whatsapp";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -85,8 +86,19 @@ const ProductDetail = () => {
   const isExclusive = product.is_exclusive;
   const isPremium = product.is_premium;
 
-  const images = product.images || (product.image_url ? [product.image_url] : []);
-  const mainImage = images[0] || '/placeholder.svg';
+  // Construct full public URL from Supabase Storage if it's a relative path
+  const getPublicImageUrl = (path: string) => {
+    if (!path || path.startsWith('http')) {
+      return path; // It's already a full URL or empty
+    }
+    // Assumes images are in a bucket named 'product-images'
+    const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+    return data?.publicUrl || '/placeholder.svg';
+  };
+
+  const rawImages = product.images || (product.image_url ? [product.image_url] : []);
+  const mainImage = getPublicImageUrl(rawImages[0]) || '/placeholder.svg';
+  const images = rawImages.map(getPublicImageUrl);
 
   return (
     <Layout>
