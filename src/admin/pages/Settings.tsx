@@ -41,7 +41,7 @@ const Settings = () => {
       "Hadirkan kebahagiaan melalui bunga segar, hampers eksklusif, dan dekorasi premium untuk setiap momen spesial Anda.",
     address: "Jl. Raya Janti Gg. Harjuna No.59, Jaranan, Karangjambe, Kec. Banguntapan, Kabupaten Bantul, Daerah Istimewa Yogyakarta 55198",
     phone: "+62 856 4642 0488",
-    email: "hello@bloomgift.id",
+    email: "hello@florist.id",
     hours: "Senin - Sabtu: 08.00 - 20.00\nMinggu: 09.00 - 17.00",
     instagram: "https://instagram.com",
     facebook: "https://facebook.com",

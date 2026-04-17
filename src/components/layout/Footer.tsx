@@ -11,7 +11,7 @@ const Footer = () => {
           <div className="space-y-4">
             <Link to="/" className="inline-block">
               <span className="font-heading text-2xl font-semibold">
-                Bloom<span className="text-primary">Gift</span>
+                Florist
               </span>
             </Link>
             <p className="text-background/70 text-sm leading-relaxed">
@@ -134,7 +134,7 @@ const Footer = () => {
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary shrink-0" />
                 <span className="text-background/70 text-sm">
-                  hello@bloomgift.id
+                  hello@florist.id
                 </span>
               </li>
               <li className="flex items-start gap-3">
@@ -151,7 +151,7 @@ const Footer = () => {
         {/* Bottom Bar */}
         <div className="border-t border-background/10 mt-12 pt-8 text-center">
           <p className="text-background/50 text-sm">
-            © {new Date().getFullYear()} BloomGift. All rights reserved.
+            © {new Date().getFullYear()} Florist. All rights reserved.
           </p>
         </div>
       </div>

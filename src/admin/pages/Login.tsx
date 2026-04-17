@@ -43,7 +43,7 @@ const Login = () => {
         <CardHeader className="space-y-2 text-center">
           <div className="mx-auto mb-4">
             <span className="font-heading text-3xl font-semibold text-foreground">
-              Bloom<span className="text-primary">Gift</span>
+              Florist
             </span>
           </div>
           <CardTitle className="text-2xl">Admin Panel</CardTitle>
@@ -64,7 +64,7 @@ const Login = () => {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@bloomgift.id"
+                placeholder="admin@florist.id"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

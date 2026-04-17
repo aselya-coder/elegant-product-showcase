@@ -8,11 +8,11 @@ export const WHATSAPP_CONFIG = {
 
   // Pesan default (floating button)
   defaultMessage:
-    "Halo, saya ingin bertanya tentang produk di website Anda.",
+    "Halo Florist, saya ingin bertanya tentang produk di website Anda.",
 
   // Pesan konsultasi
   consultationMessage:
-    "Halo, saya ingin berkonsultasi mengenai produk yang cocok untuk kebutuhan saya.",
+    "Halo Florist, saya ingin berkonsultasi mengenai produk yang cocok untuk kebutuhan saya.",
 
   // Pesan untuk produk tertentu
   productMessage: (productName: string, productUrl: string) =>

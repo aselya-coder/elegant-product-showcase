@@ -1,13 +1,13 @@
-# BloomGift Admin Panel
+# Florist Admin Panel
 
 ## 📋 Overview
 
-Admin panel lengkap untuk mengelola konten website BloomGift. Panel ini terpisah sepenuhnya dari website utama dan dirancang dengan arsitektur modular yang mudah dikembangkan.
+Admin panel lengkap untuk mengelola konten website Florist. Panel ini terpisah sepenuhnya dari website utama dan dirancang dengan arsitektur modular yang mudah dikembangkan.
 
 ## 🔐 Login Credentials
 
 ```
-Email: admin@bloomgift.id
+Email: admin@florist.id
 Password: admin123
 ```
 

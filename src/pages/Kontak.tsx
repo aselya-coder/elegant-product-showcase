@@ -19,8 +19,8 @@ const contactInfo = [
   {
     icon: Mail,
     title: "Email",
-    content: "hello@bloomgift.id",
-    action: "mailto:hello@bloomgift.id",
+    content: "hello@florist.id",
+    action: "mailto:hello@florist.id",
   },
   {
     icon: Clock,
